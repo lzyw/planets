@@ -1,4 +1,4 @@
 Hello World !
 The new information
 Let's see how staging area is working
-Client user change now this file
+Conflict solved by removing all of changes - clients and master
