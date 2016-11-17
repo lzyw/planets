@@ -1,3 +1,4 @@
 Hello World !
 The new information
 Let's see how staging area is working
+Master edit i push to remote repo
