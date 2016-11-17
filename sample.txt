@@ -1,2 +1,3 @@
 Hello World !
 The new information
+Let's see how staging area is working
