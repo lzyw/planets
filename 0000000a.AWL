@@ -1,0 +1,1650 @@
+FUNCTION "FC20_Seq128_Kroki_Glowne" : VOID
+TITLE =    Sequence template - 128 steps
+//STEP 19-33 - ZAPRASOWYWANIE
+//STEP 49-88 - OBS£UGA B£ÊDÓW
+//STEP 89+ - FREE
+AUTHOR : DS_Tech
+FAMILY : DS_Tech
+NAME : DS_Tech
+VERSION : 1.0
+
+
+VAR_TEMP
+  CurrentStep : BOOL ;	
+END_VAR
+BEGIN
+NETWORK
+TITLE =RESET SEKWENCERA - KROKI G£ÓWNE
+//-
+      AN    "M_TRYB_AUTO"; 
+      O     "DB6_Error".JEST_BLAD; 
+
+      =     "DB20_Seq128_Kroki_Glowne".Reset; 
+
+NETWORK
+TITLE =Sequence reset
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Reset; 
+      JCN   RST; 
+      OPN   "DB20_Seq128_Kroki_Glowne"; 
+      L     L#0; 
+      T     DBD    0; 
+      T     DBD    4; 
+      T     DBD    8; 
+      T     DBD   12; 
+RST:  NOP   0; 
+
+NETWORK
+TITLE =Set->Step 50 - KONTROLA KURTYNY - NIEDOZWOLONE WEJSCIE W KURTYNE
+//KONTROLA KURTYNY W TRAKCIE ZAPRASOWANIA - OBS£UGA WEJŒCIA W KURTYNÊ
+      A(    ; 
+
+      O     ; 
+
+
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     7; 
+      >=I   ; 
+      )     ; 
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     11; 
+      <=I   ; 
+      )     ; 
+
+
+      O     ; 
+
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     14; 
+      >=I   ; 
+      )     ; 
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     26; 
+      <=I   ; 
+      )     ; 
+
+      O     ; 
+
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     28; 
+      >=I   ; 
+      )     ; 
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     42; 
+      <=I   ; 
+      )     ; 
+
+//      O     
+//      A(    
+//      L     "DB20_Seq128_Kroki_Glowne".StepNr
+//      L     16
+//      >=I   
+//      )     
+//      A(    
+//      L     "DB20_Seq128_Kroki_Glowne".StepNr
+//      L     29
+//      <=I   
+//      )     
+
+      )     ; 
+      AN    "I_KURTYNA"; 
+
+      JCN   M002; 
+      L     0; 
+      T     DBD    0; 
+      T     DBD    4; 
+      T     DBD    8; 
+      T     DBD   12; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[50]; 
+M002: NOP   0; 
+
+NETWORK
+TITLE =Sequence completed condition
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[128]; 
+      =     "DB20_Seq128_Kroki_Glowne".SeqCmp; 
+
+NETWORK
+TITLE =Calculate step number
+//-
+      CALL "FC1_GetStepNr" (
+           In_SeqStructPtr          := "DB20_Seq128_Kroki_Glowne".Step,
+           RET_VAL                  := "DB20_Seq128_Kroki_Glowne".StepNr);
+
+NETWORK
+TITLE =Sequence start codition
+//-
+      OPN   "DB20_Seq128_Kroki_Glowne"; 
+      L     DBD    0; 
+      L     DBD    4; 
+      OD    ; 
+      L     DBD    8; 
+      OD    ; 
+      L     DBD   12; 
+      OD    ; 
+      L     L#0; 
+      ==D   ; 
+      AN    "DB20_Seq128_Kroki_Glowne".Reset; 
+      A     "M_TRYB_AUTO"; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[1]; 
+
+NETWORK
+TITLE =WARUNKI NA RESET AUTOSTARTU
+//      A     "DB20_Seq128_Kroki_Glowne".Step[3]
+//      A     "I_KURTYNA"
+//
+//   L     "DB9_Parametry".AUTOSTART_OFF_CZAS_S5
+//   SD    "T_OBECNOSC"
+//  O     "T_OBECNOSC"
+      ON    "M_TRYB_AUTO"; 
+      R     "M_AUTOSTART"; 
+
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[6]; 
+      A     "M_SL_CYKL_PULS_P"; 
+
+      S     "M_AUTOSTART"; 
+
+NETWORK
+TITLE =Block end conditional on sequence reset
+
+      A     "DB20_Seq128_Kroki_Glowne".Reset; 
+      BEC   ; 
+
+NETWORK
+TITLE = Step1 --> Step2, PODSYS W£¥CZONY OD TERAZ
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[1]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[1]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[2]; 
+NETWORK
+TITLE = Step2 --> Step3
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[2]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[2]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[3]; 
+
+NETWORK
+TITLE = Step3 --> Step4 - wysuw Z3 (czasami siê nie wysuwa³)
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[3]; 
+      A     "I_Z3_EXT"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[3]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[4]; 
+NETWORK
+TITLE = Step4 --> Step5 - KONTROLA W£O¯ENIA PODPRODUKTÓW
+//- SPRAWDZENIE W£O¯ENIA PODPRODUKTÓW
+//- SKOMPLETOWANE PODPRODUKTY DLA WSTÊPNEGO ZAGNIECENIA
+//- OBECNIE JEDYNIE KONTROLA PASTYLKI
+//- OPERATOR POWINIEN W£O¯YÆ PISTON I SUPPORT RING DO GNIAZDA
+//- KONTROLA KURTYNY
+//STARE:
+//----------
+//// nie mamy tych informacji, dostêpne s¹ dopiero po zjechaniu
+//// produktu na dó³ za pomoc¹ Z3
+//      A     "I_OBEC_PODKLADKI"
+//      A     "I_OBEC_TLOCZKA"
+//      A     "M_PRODUKT_KOMPLETNY"
+      A     "DB20_Seq128_Kroki_Glowne".Step[4]; 
+// WARUNEK PRZEJDZIE GDY PASTYLKA ZOSTANIE UMIESZCZONA W GNIEZDZIE
+      A     "I_SUCTION"; 
+      A     "I_KURTYNA"; // OP. POZA KURTYN¥
+
+      R     "DB20_Seq128_Kroki_Glowne".Step[4]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[5]; 
+
+NETWORK
+TITLE = Step5 --> Step6
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[5]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[5]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[6]; 
+NETWORK
+TITLE = Step6 --> Step7 - AUTOSTART
+//- AUTOSTART
+      A     "DB20_Seq128_Kroki_Glowne".Step[6]; 
+      SAVE  ; 
+
+      A     "M_AUTOSTART"; 
+      A     "I_KURTYNA"; 
+      A     "I_SUCTION"; 
+      AN    "I_OBEC_SPREZYNA_GORA"; 
+      AN    "I_OBEC_PISTON_SPREZYNA"; 
+
+//      AN    "I_OBEC_PRODUKTU"
+      R     "DB20_Seq128_Kroki_Glowne".Step[6]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[7]; 
+
+      A     BR; 
+      AN(   ; 
+      A     "I_KURTYNA"; 
+      A     "I_SUCTION"; 
+      AN    "I_OBEC_SPREZYNA_GORA"; 
+      AN    "I_OBEC_PISTON_SPREZYNA"; 
+      )     ; 
+//    A(    
+//    ON    "I_KURTYNA"
+//    ON    "I_SUCTION"
+//      O     "I_OBEC_PRODUKTU"
+//    )     
+      R     "DB20_Seq128_Kroki_Glowne".Step[6]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[1]; 
+
+
+
+NETWORK
+TITLE = Step7 --> Step8
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[7]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[7]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[8]; 
+
+NETWORK
+TITLE = Step8 --> Step9 - WYBÓR REFERENCJI NR 1 KAMERY
+//- ZA£ADOWANIE REFERENCJI NR 1 DO KAMERY
+      A     "DB20_Seq128_Kroki_Glowne".Step[8]; 
+      SAVE  ; 
+      JCN   M003; 
+
+      L     1; 
+      T     "DB131_Kamera".Inspection_Nr; 
+
+M003: NOP   0; 
+      A     BR; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[8]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[9]; 
+
+NETWORK
+TITLE = Step9 --> Step10
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[9]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[9]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[10]; 
+
+NETWORK
+TITLE = Step10 --> Step11 - OCZEKIWANIE DO ZDJ.
+//Step10 --> Step11, Step1 - SPRAWDZENIE CZY PODPRODUKT KOMPLETNY
+//- SPRAWDZENIE CZY PODPRODUKTY DO 1 ZAGNIECENIA ZNAJDUJ¥ SIÊ W GNIEDZIE
+//------------
+//BY£O:
+//------------
+//      A     "DB20_Seq128_Kroki_Glowne".Step[10]
+//      SAVE  
+//
+//// JESLI PRODUKT KOMPLETNY TO SKOK DO KOLEJNEGO KROKU
+////    A     "M_PRODUKT_KOMPLETNY"
+//
+//      A     "I_OBEC_PODKLADKI"
+//      A     "I_OBEC_TLOCZKA"
+//
+//      A     "I_KURTYNA"
+//      R     "DB20_Seq128_Kroki_Glowne".Step[10]
+//      S     "DB20_Seq128_Kroki_Glowne".Step[11]
+//
+//// JESLI PRODUKT NIE KOMPLETNY TO SKOK DO 1 KROKU
+//      A     BR
+//      A(    
+//      ON    "I_OBEC_PODKLADKI"
+//      ON    "I_OBEC_TLOCZKA"
+//      )     
+//      R     "DB20_Seq128_Kroki_Glowne".Step[10]
+//      S     "DB20_Seq128_Kroki_Glowne".Step[1]
+//
+      A     "DB20_Seq128_Kroki_Glowne".Step[10]; 
+
+// OPÓNIENIE DO ZDJÊCIA
+      L     S5T#750MS; 
+      SD    "T_CAM_DELAY_PRE1"; 
+
+      A     "T_CAM_DELAY_PRE1"; 
+      SAVE  ; 
+      S     "M_CAM1_SEQ_START"; 
+
+// OPÓNIENIE PO ZDJÊCIU
+      A     BR; 
+      L     S5T#1S; 
+      SD    "T_CAM_DELAY_POST1"; 
+
+      A     "T_CAM_DELAY_POST1"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[10]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[11]; 
+NETWORK
+TITLE = Step11 --> Step12
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[11]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[11]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[12]; 
+NETWORK
+TITLE = Step12 --> Step13/Step14 - OCENA ZDJÊCIA 1
+//- WERYFIKACJA ZDJÊCIA, KONTROLA ODPOWIEDNICH BITÓW WYNIKOWYCH KAMERY
+      A     "DB20_Seq128_Kroki_Glowne".Step[12]; 
+      A     "DB131_Kamera".DONE; 
+      SAVE  ; 
+
+      JCN   M111; 
+
+// OK, SKOK DO KOLEJNYCH KROKÓW, Step13
+      A     BR; 
+      A(    ; 
+      A     "M_DEBUG_ON"; 
+      O     ; 
+      A     "I_CAM1_STATUS_READY"; 
+      A     "I_CAM1_STATUS"; 
+      A     "I_CAM1_RESULT_0"; 
+//    A     "I_CAM1_RESULT_1"
+      A     "I_CAM1_RESULT_2"; 
+//    A     "I_CAM1_RESULT_3"
+      A     "I_CAM1_RESULT_4"; 
+      )     ; 
+
+      R     "DB20_Seq128_Kroki_Glowne".Step[12]; 
+      R     "M_CAM1_SEQ_START"; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[14]; 
+
+// POPRAW PASTYLKE (nie ma NOKa)
+      A     BR; 
+      AN    "M_DEBUG_ON"; 
+      A     "I_CAM1_STATUS_READY"; 
+      A(    ; 
+      ON    "I_CAM1_STATUS"; 
+      ON    "I_CAM1_RESULT_0"; 
+//    ON    "I_CAM1_RESULT_1"
+      ON    "I_CAM1_RESULT_2"; 
+//    ON    "I_CAM1_RESULT_3"
+      ON    "I_CAM1_RESULT_4"; 
+      )     ; 
+
+      AN    "I_KURTYNA"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[12]; 
+      R     "M_CAM1_SEQ_START"; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[13]; 
+
+M111: NOP   0; 
+
+NETWORK
+TITLE = Step13 --> Step6 - POWROT PO POPRAWIENIU PASTYLKI
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[13]; 
+      A     "I_KURTYNA"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[13]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[6]; 
+NETWORK
+TITLE = Step14 --> Step15 - ZJAZD SI£OWNIKA Z3
+//- WSUNIÊCIE SI£OWNIKA WYSUWU
+      A     "DB20_Seq128_Kroki_Glowne".Step[14]; 
+      A     "I_Z3_RET"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[14]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[15]; 
+NETWORK
+TITLE = Step15 --> Step16 - OPÓNIENIE Z3
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[15]; 
+      SAVE  ; 
+      L     S5T#200MS; 
+      SD    "T_Z3_POCZEKAJ"; 
+
+      A     BR; 
+      A     "T_Z3_POCZEKAJ"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[15]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[16]; 
+NETWORK
+TITLE = Step16 --> Step17 - PODPRODUKTY OBECNE W GNIEDZIE
+//- GNIAZDO NA POZYCJI DOLNEJ (Z3 WSUNIÊTY)
+//- KONTROLA OBECNOŒCI PISTONA I SUPPORT RINGU
+      A     "DB20_Seq128_Kroki_Glowne".Step[16]; 
+      SAVE  ; 
+
+// OK
+      A     "I_OBEC_TLOCZKA"; 
+      A     "I_OBEC_PODKLADKI"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[16]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[17]; 
+
+// NOK
+      A     BR; 
+      A(    ; 
+      ON    "I_OBEC_TLOCZKA"; 
+      ON    "I_OBEC_PODKLADKI"; 
+      )     ; 
+      S     "DB20_Seq128_Kroki_Glowne".PRODUKT_NOK; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[16]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[39]; 
+
+NETWORK
+TITLE = Step17 --> Step18 - WYSUW SI£OWNIKA Z4 I Z2
+//- SI£OWNIK Z4 DO POZYCJI WYSUNIÊTEJ, W KTÓREJ ZABLOKUJE
+//  RUCH Z1 (Z1 NIE WYSUNIE SIÊ DO KOÑCA)
+      A     "DB20_Seq128_Kroki_Glowne".Step[17]; 
+      A     "I_Z4_EXT"; 
+      A     "M_Z2_EXT"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[17]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[18]; 
+
+NETWORK
+TITLE = Step18 --> Step19 - ZAPRASOWANIE #1
+//- ZAPRASOWANIE
+      A     "DB20_Seq128_Kroki_Glowne".Step[18]; 
+      A     "I_Z1_POZ_SRODKOWA"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[18]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[19]; 
+NETWORK
+TITLE = Step19 --> Step20 - OPÓNIENIE, OCENA GT I CIŒN.
+//- OPÓNIENIE I OCENA ZAPRASOWANIA POPRZEZ CZUJNIK
+//  WYSOKOŒCI GT I PRZETWORNIK CIŒNIENIA
+      A     "DB20_Seq128_Kroki_Glowne".Step[19]; 
+      SAVE  ; 
+      A     "I_Z1_POZ_SRODKOWA"; 
+      L     S5T#1S500MS; 
+      SD    "T_Z1_POSTOJ1"; 
+
+// OK
+      A     BR; 
+      A     "T_Z1_POSTOJ1"; 
+      A(    ; 
+      A     "M_DEBUG_GT2_ON"; 
+      O     ; 
+      A     "I_WYS_ZGNIECENIA_OK"; 
+      )     ; 
+      A     "I_Z2_CISN_OK"; 
+
+      R     "DB20_Seq128_Kroki_Glowne".Step[19]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[20]; 
+
+
+// NOK
+//WICI 2016-10-14 this logic below is a little effed up
+//should it be an inverse of (DEBUG OR WYS_ZAGN) AND CISN ??
+//or should we wait for CISN nevertheless (because lack of pressure
+//is a problem with machine, and not with NOK product
+//IMHO it should be CISN AND NOT (DEBUG OR WYS_ZAGN)
+//this way we wait on pressure (like with OK), and fail only if
+//the WYS_ZAGN is faulty and is not circumvented by DEBUG
+//lets assume that CISN will immediately produce NOK
+      A     BR; 
+      A     "T_Z1_POSTOJ1"; 
+      AN    "M_DEBUG_GT2_ON"; 
+      A(    ; 
+      ON    "I_WYS_ZGNIECENIA_OK"; 
+      ON    "I_Z2_CISN_OK"; 
+      )     ; 
+      S     "DB20_Seq128_Kroki_Glowne".PRODUKT_NOK; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[19]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[39]; 
+NETWORK
+TITLE = Step20 --> Step21 - POWRÓT SI£OWNIKA Z1, Z2 NADAL WYSUW
+//- POWRÓT SI£OWNIKA Z1 DO POZYCJI BAZA
+//- WY£¥CZENIE PODSYSU
+//- Z2 MA TRZYMAÆ WYCI¥GNIÊTY TRZPIEÑ ABY MONTA¯ BY£ £ATWIEJSZY W STEP27
+      A     "DB20_Seq128_Kroki_Glowne".Step[20]; 
+      A     "I_Z1_RET"; 
+      A     "I_Z2_EXT"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[20]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[21]; 
+
+NETWORK
+TITLE = Step21 --> Step22 - POWRÓT SI£OWNIKA Z4
+//- RUCH Z4 DO POZYCJI BAZA
+      A     "DB20_Seq128_Kroki_Glowne".Step[21]; 
+      A     "I_Z4_RET"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[21]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[22]; 
+
+NETWORK
+TITLE = Step22 --> Step23
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[22]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[22]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[23]; 
+NETWORK
+TITLE = Step23 --> Step24 - WYBÓR REFERENCJI NR 2 KAMERY
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[23]; 
+      SAVE  ; 
+      JCN   M004; 
+
+      L     2; 
+      T     "DB131_Kamera".Inspection_Nr; 
+
+M004: NOP   0; 
+      A     BR; 
+
+      R     "DB20_Seq128_Kroki_Glowne".Step[23]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[24]; 
+
+NETWORK
+TITLE = Step24 --> Step25 - OCZEKIWANIE DO ZDJ.
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[24]; 
+
+// OPÓNIENIE DO ZDJÊCIA
+      L     S5T#750MS; 
+      SD    "T_CAM_DELAY_PRE2"; 
+
+      A     "T_CAM_DELAY_PRE2"; 
+      SAVE  ; 
+      S     "M_CAM1_SEQ_START"; 
+
+// OPÓNIENIE PO ZDJÊCIU
+      A     BR; 
+      L     S5T#1S; 
+      SD    "T_CAM_DELAY_POST2"; 
+
+      A     "T_CAM_DELAY_POST2"; 
+
+      R     "DB20_Seq128_Kroki_Glowne".Step[24]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[25]; 
+
+NETWORK
+TITLE = Step25 --> Step26 - OCENA ZDJÊCIA 2
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[25]; 
+      A     "DB131_Kamera".DONE; 
+      SAVE  ; 
+
+      JCN   M113; 
+
+// OK, SKOK DO KOLEJNYCH KROKÓW, Step26
+      A     BR; 
+      A(    ; 
+      A     "M_DEBUG_ON"; 
+      O     ; 
+      A     "I_CAM1_STATUS_READY"; 
+      A     "I_CAM1_STATUS"; 
+//    A     "I_CAM1_RESULT_0"
+//    A     "I_CAM1_RESULT_1"
+      A     "I_CAM1_RESULT_2"; 
+//    A     "I_CAM1_RESULT_3"
+//    A     "I_CAM1_RESULT_4"
+      )     ; 
+
+      R     "DB20_Seq128_Kroki_Glowne".Step[25]; 
+      R     "M_CAM1_SEQ_START"; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[26]; 
+
+// NOK, SKOK DO OBS£UGI NOK, Step39
+      A     BR; 
+      AN    "M_DEBUG_ON"; 
+      A     "I_CAM1_STATUS_READY"; 
+      A(    ; 
+      ON    "I_CAM1_STATUS"; 
+//    ON    "I_CAM1_RESULT_0"
+//    ON    "I_CAM1_RESULT_1"
+      ON    "I_CAM1_RESULT_2"; 
+//    ON    "I_CAM1_RESULT_3"
+//    ON    "I_CAM1_RESULT_4"
+      )     ; 
+
+      S     "DB20_Seq128_Kroki_Glowne".PRODUKT_NOK; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[25]; 
+      R     "M_CAM1_SEQ_START"; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[39]; 
+
+M113: NOP   0; 
+NETWORK
+TITLE = Step26 --> Step27
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[26]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[26]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[27]; 
+
+NETWORK
+TITLE = Step27 --> Step28 - OCZEKIWANIE NA SPRÊ¯YNÊ I PISTON RING
+//- KOMPLETOWANIE PRODUKTU DO 2 ZAGNIECENIA, W TYM KROKU
+//  MUSI BYÆ WERYFIKACJA WSZYSTKICH KOMPONENTÓW
+//- OCZEKIWANIE RÓWNIE¯ NA KURTYNÊ
+      A     "DB20_Seq128_Kroki_Glowne".Step[27]; 
+      SAVE  ; 
+
+// OPERATOR NIE MO¯E WYJ¥Æ PRODUKTÓW Z DOLNEGO
+// GNIAZDA. NOK JEŒLI TAK ZROBI.
+      A(    ; 
+      ON    "I_OBEC_TLOCZKA"; 
+      ON    "I_OBEC_PODKLADKI"; 
+      )     ; 
+      S     "DB20_Seq128_Kroki_Glowne".PRODUKT_NOK; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[27]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[39]; 
+
+
+      A     BR; 
+
+// GNIAZDO GORNE
+      A     "I_OBEC_PISTON_SPREZYNA"; 
+      A     "I_OBEC_SPREZYNA_GORA"; 
+
+// GNIAZDO DOLNE
+      A     "I_OBEC_TLOCZKA"; 
+      A     "I_OBEC_PODKLADKI"; 
+
+      A     "I_KURTYNA"; 
+
+      R     "DB20_Seq128_Kroki_Glowne".Step[27]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[28]; 
+NETWORK
+TITLE = Step28 --> Step29
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[28]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[28]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[29]; 
+
+NETWORK
+TITLE = Step29 --> Step30,Step39 - PONOWNE SPRAWDZENIE GN. GÓRNEGO
+//- Upewnienie siê, ¿e sprê¿yna wraz z piston ringiem s¹ w górnym gnieŸdzie
+      A     "DB20_Seq128_Kroki_Glowne".Step[29]; 
+      SAVE  ; 
+
+      A(    ; 
+      ON    "I_OBEC_PISTON_SPREZYNA"; 
+      ON    "I_OBEC_SPREZYNA_GORA"; 
+      )     ; 
+      S     "DB20_Seq128_Kroki_Glowne".PRODUKT_NOK; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[29]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[39]; 
+
+      A     BR; 
+      A     "I_OBEC_PISTON_SPREZYNA"; 
+      A     "I_OBEC_SPREZYNA_GORA"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[29]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[30]; 
+
+NETWORK
+TITLE = Step30 --> Step31 - SPUSZCZENIE POWIETRZA Z SI£. Z2
+//- OTWARCIE ZAWORU SPUSZCZAJ¥CEGO
+      A     "DB20_Seq128_Kroki_Glowne".Step[30]; 
+      SAVE  ; 
+
+
+      L     S5T#300MS; 
+      SP    "T_Z2_PRESSURE_DROP_WAIT2"; 
+
+      A     BR; 
+      A     "T_Z2_PRESSURE_DROP_WAIT2"; 
+      S     "M_Z2_DROP_PRESSURE"; 
+
+
+      A     BR; 
+      AN    "T_Z2_PRESSURE_DROP_WAIT2"; 
+      R     "M_Z2_DROP_PRESSURE"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[30]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[31]; 
+
+NETWORK
+TITLE = Step31 --> Step32 - ZAPRASOWANIE #2
+//- ZAPRASOWANIE 2, SI£OWNIK Z2 NIE MO¯E BYÆ
+//  WYSTEROWANY NA WYSÓW W TYM MOMENCIE
+//- NA TYM ETAPIE DO ZAPRASOWANEGO JU¯ PIROPISTONA
+//  DODAWANA JEST SPRÊ¯YNA Z PISTONRINGIEM
+      A     "DB20_Seq128_Kroki_Glowne".Step[31]; 
+      A     "I_Z1_EXT"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[31]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[32]; 
+
+NETWORK
+TITLE = Step32 --> Step33
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[32]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[32]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[33]; 
+
+NETWORK
+TITLE = Step33 --> Step34 - WERYFIKACJA ZAPRASOWANIA #2
+//- KONTROLA PROCESU ZAPRASOWANIA
+//- BY£A WERYFIKACJA:
+//-------------------
+//      A     "DB20_Seq128_Kroki_Glowne".Step[33]
+//// wyzwolenie timera w step24
+//      A     "T_Z1_POSTOJ"
+//      SAVE  
+//
+//// OK, SKOK DO KOLEJNYCH KROKÓW, Step34
+//      A     "I_WYS_ZGNIECENIA_OK"
+//      A     "I_Z2_CISN_OK"
+//      R     "DB20_Seq128_Kroki_Glowne".Step[33]
+//      S     "DB20_Seq128_Kroki_Glowne".Step[34]
+//
+//// NOK, SKOK DO OBS£UGI NOK, Step39
+//      A     BR
+//      A(    
+//      ON    "I_WYS_ZGNIECENIA_OK"
+//      ON    "I_Z2_CISN_OK"
+//      )     
+//      S     "DB20_Seq128_Kroki_Glowne".PRODUKT_NOK
+//      R     "DB20_Seq128_Kroki_Glowne".Step[33]
+//      S     "DB20_Seq128_Kroki_Glowne".Step[39]
+//
+      A     "DB20_Seq128_Kroki_Glowne".Step[33]; 
+      SAVE  ; 
+
+      A     "M_Z1_EXT"; 
+      L     S5T#800MS; 
+      SD    "T_Z1_POSTOJ2"; 
+
+      A     BR; 
+      A     "T_Z1_POSTOJ2"; 
+
+      A     "T_Z1_POSTOJ2"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[33]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[34]; 
+NETWORK
+TITLE = Step34 --> Step35 - WSUW Z1 I Z2
+//- COFNIÊCIE SI£OWNIKÓW PO ZAPRASOWANIU
+      A     "DB20_Seq128_Kroki_Glowne".Step[34]; 
+      A     "I_Z2_RET"; 
+//      L     S5T#100MS
+//      SD    "T_Z1_WAIT_Z2"
+
+//      A     "T_Z1_WAIT_Z2"
+      A     "I_Z1_RET"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[34]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[35]; 
+
+NETWORK
+TITLE = Step35 --> Step36 - WYBÓR REFERENCJI NR 3 KAMERY
+//- ZA£ADOWANIE 2 REFERENCJI DO KAMERY
+      A     "DB20_Seq128_Kroki_Glowne".Step[35]; 
+      SAVE  ; 
+      JCN   m004; 
+      L     3; 
+      T     "DB131_Kamera".Inspection_Nr; 
+m004: NOP   0; 
+      A     BR; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[35]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[36]; 
+NETWORK
+TITLE = Step36 --> Step37
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[36]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[36]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[37]; 
+NETWORK
+TITLE = Step37 --> Step38 - Z3 EXT, OCZEKIWANIE DO ZDJ., wysuw Z2
+//- ELEMENT Z£O¯ONY ZOSTAJE WYSUNIÊTY Z GNIAZDA PRZEZ SI£OWNIK Z3
+//  W CELU WYKONANIA ZDJÊCIA
+//- PO 750MS GDY PRODUKT JEST STABILNY WYKONANE ZOSTAJE ZDJÊCIE
+      A     "DB20_Seq128_Kroki_Glowne".Step[37]; 
+      A     "I_Z3_EXT"; 
+      A     "I_Z2_EXT"; 
+
+// OPÓNIENIE DO ZDJÊCIA
+      L     S5T#750MS; 
+      SD    "T_CAM_DELAY_PRE3"; 
+      A     "T_CAM_DELAY_PRE3"; 
+      SAVE  ; 
+      S     "M_CAM1_SEQ_START"; 
+
+// OPÓNIENIE PO ZDJÊCIU
+      A     BR; 
+      L     S5T#1S; 
+      SD    "T_CAM_DELAY_POST3"; 
+      A     "T_CAM_DELAY_POST3"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[37]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[38]; 
+
+NETWORK
+TITLE = Step38 --> Step39 - WERYFIKACJA WIZYJNA #3
+//- WERYFIKACJA POPRAWNEGO WYKONANIA PRODUKTU PO 2 ZAPRASOWANIU
+      A     "DB20_Seq128_Kroki_Glowne".Step[38]; 
+      A     "DB131_Kamera".DONE; 
+      SAVE  ; 
+
+      JCN   M112; 
+
+// OK, SKOK DO KOLEJNYCH KROKÓW, Step39
+//WICI 2016-10-14 shouldn't we do it like in step 25
+//so that the debug on is of higher priority than cam status ready?
+//this way we can completely override the cam signals
+//it seems that status_ready is ok/nok from optosoft (smiley face)
+      A     "I_CAM1_STATUS_READY"; 
+      A(    ; 
+      A     "M_DEBUG_ON"; 
+      O     ; 
+      A     "I_CAM1_STATUS"; 
+      A     "I_CAM1_RESULT_0"; 
+      A     "I_CAM1_RESULT_1"; 
+//    A     "I_CAM1_RESULT_2"
+      A     "I_CAM1_RESULT_3"; 
+      A     "I_CAM1_RESULT_4"; 
+      )     ; 
+      S     "DB20_Seq128_Kroki_Glowne".PRODUKT_OK; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[38]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[39]; 
+
+// NOK, SKOK DO OBS£UGI NOK, Step39
+      A     BR; 
+      AN    "M_DEBUG_ON"; 
+      A     "I_CAM1_STATUS_READY"; 
+      A(    ; 
+      ON    "I_CAM1_STATUS"; 
+      ON    "I_CAM1_RESULT_0"; 
+      ON    "I_CAM1_RESULT_1"; 
+//    ON    "I_CAM1_RESULT_2"
+      ON    "I_CAM1_RESULT_3"; 
+      ON    "I_CAM1_RESULT_4"; 
+      )     ; 
+      S     "DB20_Seq128_Kroki_Glowne".PRODUKT_NOK; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[38]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[39]; 
+
+M112: NOP   0; 
+NETWORK
+TITLE = Step39 --> Step40 --- OBS£UGA KOÑCA SEKWENCJI ---, reset kamery
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[39]; 
+//    A     "I_CAM1_STATUS_READY"
+      R     "M_CAM1_SEQ_START"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[39]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[40]; 
+
+NETWORK
+TITLE = Step40 --> Step41 
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[40]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[40]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[41]; 
+
+NETWORK
+TITLE = Step41 --> Step42
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[41]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[41]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[42]; 
+
+NETWORK
+TITLE = Step42 --> Step43 (OK), Step45 (NOK)
+//WERYFIKACJA PRODUKT OK LUB NOK
+      A     "DB20_Seq128_Kroki_Glowne".Step[42]; 
+      SAVE  ; 
+      A     "DB20_Seq128_Kroki_Glowne".PRODUKT_OK; 
+      AN    "DB20_Seq128_Kroki_Glowne".PRODUKT_NOK; 
+      AN    "M_WERYFIKACJA_NOK"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[42]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[43]; 
+
+      A     BR; 
+      A(    ; 
+      O     "DB20_Seq128_Kroki_Glowne".PRODUKT_NOK; 
+      O     "M_WERYFIKACJA_NOK"; 
+      )     ; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[42]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[45]; 
+
+NETWORK
+TITLE = Step43 --> Step44 - WYJMIJ PRODUKT OK
+//OK - WYJMIJ PRODUKT GOTOWY
+//
+      A     "DB20_Seq128_Kroki_Glowne".Step[43]; 
+      AN    "I_OBEC_PRODUKTU"; 
+      AN    "M_PRODUKT_OBECNY"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[43]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[44]; 
+
+NETWORK
+TITLE = Step44 --> Step43,Step49 - WYJMIJ RÊCE Z KURTYNY
+//OK - WYCIAGNIJ RECE Z KURTYNY SKOK DO 49, EWENTUALNIE WYJAC TO CO ZOSTALO
+      A     "DB20_Seq128_Kroki_Glowne".Step[44]; 
+      SAVE  ; 
+
+// WSZYSTKO WYJÊTE, IDZIEMY DALEJ
+      A     "I_KURTYNA"; 
+      AN    "I_OBEC_PRODUKTU"; 
+      AN    "M_PRODUKT_OBECNY"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[44]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[49]; 
+
+// JESZCZE TRZEBA COŒ WYJ¥Æ
+      A     BR; 
+      A(    ; 
+      O     "I_OBEC_PRODUKTU"; 
+      O     "M_PRODUKT_OBECNY"; 
+      )     ; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[44]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[43]; 
+
+NETWORK
+TITLE = Step45 --> Step46 - BAZOWANIE SI£OWNIKÓW
+//NOK - PRODUKT OBECNY - USUÑ PRODUKT
+//WSUÑ SI£OWNIK Z1 - BAZA
+//WSUÑ SI£OWNIK Z3 - BAZA (WYSUNIÊTY)
+//WSUÑ SI£OWNIK Z4 - BAZA
+//
+      A     "DB20_Seq128_Kroki_Glowne".Step[45]; 
+      A     "I_Z1_RET"; 
+      A     "I_Z4_RET"; 
+      A     "I_Z3_EXT"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[45]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[46]; 
+
+NETWORK
+TITLE = Step46 --> Step47 - WYJMIJ PRODUKT NOK
+//- JEŒLI JEST COŒ W KTÓRYMŒ Z GNIAZD, WYJMIJ
+      A     "DB20_Seq128_Kroki_Glowne".Step[46]; 
+//      SAVE  
+//  Step46 --> Step45,
+//      A(    
+//      O     "I_OBEC_PRODUKTU"
+//      O     "I_SUCTION"
+//      O     "I_OBEC_SPREZYNA_GORA"
+//      )     
+//      A     "I_KURTYNA"
+
+//      R     "DB20_Seq128_Kroki_Glowne".Step[46]
+//      S     "DB20_Seq128_Kroki_Glowne".Step[45]
+
+//  Step46 --> Step47,
+//      A     BR   
+
+//      A(    
+//      O     
+//      A     "M_WERYFIKACJA_NOK"
+//      A     "I_OBEC_SPREZYNA_GORA"
+//      O     
+//      AN    "M_WERYFIKACJA_NOK"
+//      AN    "I_OBEC_SPREZYNA_GORA"
+//      O     
+//      AN    "M_WERYFIKACJA_NOK"
+//      A     "I_OBEC_SPREZYNA_GORA"
+//      O     
+//      A     "M_WERYFIKACJA_NOK"
+//      AN    "I_OBEC_SPREZYNA_GORA"
+//      )     
+//      AN    "I_OBEC_PRODUKTU"
+
+
+      AN    "M_PRODUKT_OBECNY"; 
+
+      R     "DB20_Seq128_Kroki_Glowne".Step[46]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[47]; 
+
+
+NETWORK
+TITLE = Step47 --> Step46, Step48 - WYRZUÆ NOK DO SCRAPBOX
+//NOK - WYRZUC ELEMENT DO ZBIORNIKA BRAKÓW
+      A     "DB20_Seq128_Kroki_Glowne".Step[47]; 
+      SAVE  ; 
+
+      A     "M_PRODUKT_OBECNY"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[47]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[46]; 
+
+// JEŒLI WERYFIKACJA WSTÊPNA, POMINIÊCIE WYRZUCENIA
+//      SAVE  
+//      A     "M_WERYFIKACJA_NOK"
+//      R     "DB20_Seq128_Kroki_Glowne".Step[47]
+//      R     "M_WERYFIKACJA_NOK"
+//      S     "DB20_Seq128_Kroki_Glowne".Step[48]
+//      A     BR
+//      AN    "M_WERYFIKACJA_NOK"
+
+      A     BR; 
+      AN    "M_PRODUKT_OBECNY"; 
+      A     "M_EL_BRAK_PULS_N"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[47]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[48]; 
+
+NETWORK
+TITLE = Step48 --> Step49 - WYJMIJ RECE Z KURTYNY
+//NOK - WYJMIJ RÊCE Z KURTYNY
+//
+      A     "DB20_Seq128_Kroki_Glowne".Step[48]; 
+      SAVE  ; 
+      A     "M_PRODUKT_OBECNY"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[48]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[46]; 
+
+      A     BR; 
+      AN    "M_PRODUKT_OBECNY"; 
+      A     "I_KURTYNA"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[48]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[49]; 
+
+NETWORK
+TITLE = Step49 --> Step1 - KONIEC PROCEDURY NOK I OK, BAZOWANIE Z3
+//PRODUKT NOK LUB OK, KONIEC SEKWENCJI, POWRÓT DO POCZATKU
+//SI£OWNIK Z3 WSUÑ - BAZA
+//
+      A     "DB20_Seq128_Kroki_Glowne".Step[49]; 
+      A     "I_Z1_RET"; 
+      A     "I_Z2_EXT"; 
+      A     "I_Z3_EXT"; 
+      A     "I_Z4_RET"; 
+      A     "M_SILOWNIKI_BAZOWA"; 
+      A     "M_POZYCJA_BAZOWA"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[49]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[1]; 
+
+NETWORK
+TITLE = Step50 -->  Step50-72 --> Step80 - OBS£UGA B£ÊDÓW
+//SKOK DO KROKÓW OBS£UGI B£EDÓW
+//      Step50-72 --> Step80     OBS£UGA B£ÊDÓW
+//WICI wooowah, the steps 51 fired, even though we do not explicitly
+//jump to it (or at least it did some time ago)
+      A     "DB20_Seq128_Kroki_Glowne".Step[50]; 
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     50; 
+      >=I   ; 
+      )     ; 
+
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     72; 
+      <=I   ; 
+      )     ; 
+      =     "DB6_Error".BLAD_SEKWENCJI; 
+      A     "DB6_Error".BLAD_SEKWENCJI; 
+      A     "M_SL_RESET_PULS_P"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[50]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[80]; 
+
+      A     "DB6_Error".BLAD_SEKWENCJI; 
+      S     "DB20_Seq128_Kroki_Glowne".PRODUKT_NOK; 
+
+
+
+NETWORK
+TITLE = Step51 --> Step52
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[51]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[51]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[52]; 
+
+NETWORK
+TITLE = Step52 --> Step53
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[52]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[52]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[53]; 
+
+NETWORK
+TITLE = Step53 --> Step54
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[53]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[53]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[54]; 
+
+NETWORK
+TITLE = Step54 --> Step55
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[54]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[54]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[55]; 
+
+NETWORK
+TITLE = Step55 --> Step56
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[55]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[55]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[56]; 
+
+NETWORK
+TITLE = Step56 --> Step57
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[56]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[56]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[57]; 
+
+NETWORK
+TITLE = Step57 --> Step58
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[57]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[57]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[58]; 
+
+NETWORK
+TITLE = Step58 --> Step59
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[58]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[58]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[59]; 
+
+NETWORK
+TITLE = Step59 --> Step60
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[59]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[59]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[60]; 
+
+NETWORK
+TITLE = Step60 --> Step61
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[60]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[60]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[61]; 
+
+NETWORK
+TITLE = Step61 --> Step62
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[61]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[61]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[62]; 
+
+NETWORK
+TITLE = Step62 --> Step63
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[62]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[62]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[63]; 
+
+NETWORK
+TITLE = Step63 --> Step64
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[63]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[63]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[64]; 
+
+NETWORK
+TITLE = Step64 --> Step65
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[64]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[64]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[65]; 
+
+NETWORK
+TITLE = Step65 --> Step66
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[65]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[65]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[66]; 
+
+NETWORK
+TITLE = Step66 --> Step67
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[66]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[66]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[67]; 
+
+NETWORK
+TITLE = Step67 --> Step68
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[67]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[67]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[68]; 
+
+NETWORK
+TITLE = Step68 --> Step69
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[68]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[68]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[69]; 
+
+NETWORK
+TITLE = Step69 --> Step70
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[69]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[69]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[70]; 
+
+NETWORK
+TITLE = Step70 --> Step71
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[70]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[70]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[71]; 
+
+NETWORK
+TITLE = Step71 --> Step72
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[71]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[71]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[72]; 
+
+NETWORK
+TITLE = Step72 --> Step73
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[72]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[72]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[73]; 
+
+NETWORK
+TITLE = Step73 --> Step74
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[73]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[73]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[74]; 
+
+NETWORK
+TITLE = Step74 --> Step75
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[74]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[74]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[75]; 
+
+NETWORK
+TITLE = Step75 --> Step76
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[75]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[75]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[76]; 
+
+NETWORK
+TITLE = Step76 --> Step77
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[76]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[76]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[77]; 
+
+NETWORK
+TITLE = Step77 --> Step78
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[77]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[77]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[78]; 
+
+NETWORK
+TITLE = Step78 --> Step79
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[78]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[78]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[79]; 
+
+NETWORK
+TITLE = Step79 --> Step80
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[79]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[79]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[80]; 
+
+NETWORK
+TITLE = Step80 --> Step81 ------ OBS£UGA B£ÊDÓW ------ BAZOWANIE Z1
+//BAZOWANIE SI£OWNIKÓW - SI£OWNIK Z1
+//
+      A     "DB20_Seq128_Kroki_Glowne".Step[80]; 
+//    A     "DB120_CYLS".ST1_Z1.I_RET
+      A     "I_Z1_RET"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[80]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[81]; 
+
+NETWORK
+TITLE = Step81 --> Step82 - BAZOWANIE Z2
+//BAZOWANIE SI£OWNIKÓW - SI£OWNIK Z2
+      A     "DB20_Seq128_Kroki_Glowne".Step[81]; 
+//    A     "DB120_CYLS".ST1_Z2.I_EXT
+      A     "I_Z2_EXT"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[81]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[82]; 
+
+NETWORK
+TITLE = Step82 --> Step83 - BAZOWANIE Z4
+//BAZOWANIE SI£OWNIKÓW - SI£OWNIK Z4
+      A     "DB20_Seq128_Kroki_Glowne".Step[82]; 
+//    A     "DB120_CYLS".ST1_Z4.I_RET
+      A     "I_Z4_RET"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[82]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[83]; 
+
+NETWORK
+TITLE = Step83 --> Step84 - BAZOWANIE Z3
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[83]; 
+//    A     "DB120_CYLS".ST1_Z3.I_EXT
+      A     "I_Z3_EXT"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[83]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[84]; 
+
+NETWORK
+TITLE = Step84 --> Step85 - WYJMIJ NOK
+//- WYJMIJ NOK
+//
+      A     "DB20_Seq128_Kroki_Glowne".Step[84]; 
+      AN    "I_OBEC_PRODUKTU"; 
+      AN    "I_OBEC_SPREZYNA_GORA"; 
+      AN    "I_OBEC_PISTON_SPREZYNA"; 
+      AN    "M_PRODUKT_OBECNY"; 
+
+      R     "DB20_Seq128_Kroki_Glowne".Step[84]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[85]; 
+
+NETWORK
+TITLE = Step85 --> Step86
+//- 
+      A     "DB20_Seq128_Kroki_Glowne".Step[85]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[85]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[86]; 
+
+NETWORK
+TITLE = Step86 --> Step87 - WYRZUCENIE ELEMENTU DO SCRAPBOX
+//- OCZEKIWANIE NA PULS OD CZUJNIKA ODRZUTU
+      A     "DB20_Seq128_Kroki_Glowne".Step[86]; 
+      SAVE  ; 
+
+      A     "M_EL_BRAK_PULS_N"; 
+      AN    "I_OBEC_PRODUKTU"; 
+      AN    "I_OBEC_SPREZYNA_GORA"; 
+      AN    "I_OBEC_PISTON_SPREZYNA"; 
+      AN    "M_PRODUKT_OBECNY"; 
+
+      R     "DB20_Seq128_Kroki_Glowne".Step[86]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[87]; 
+
+
+      A     BR; 
+      A(    ; 
+      O     "I_OBEC_PRODUKTU"; 
+      O     "I_OBEC_SPREZYNA_GORA"; 
+      O     "I_OBEC_PISTON_SPREZYNA"; 
+      O     "M_PRODUKT_OBECNY"; 
+      )     ; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[86]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[84]; 
+
+NETWORK
+TITLE = Step87 --> Step88 - OCZEKIWANIE NA WYCI¥GNIÊCIE R¥K Z KURTYNY
+//- WYCI¥GNIJ RECE Z KURTYNY I EWENTUALNE WYRZUCENIE KOLEJNEGO NOKA
+      A     "DB20_Seq128_Kroki_Glowne".Step[87]; 
+      SAVE  ; 
+      A(    ; 
+      O     "I_OBEC_PRODUKTU"; 
+      O     "I_OBEC_SPREZYNA_GORA"; 
+      O     "I_OBEC_PISTON_SPREZYNA"; 
+      O     "M_PRODUKT_OBECNY"; 
+      )     ; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[87]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[84]; 
+
+      A     BR; 
+      A     "I_KURTYNA"; 
+      AN(   ; 
+      O     "I_OBEC_PRODUKTU"; 
+      O     "I_OBEC_SPREZYNA_GORA"; 
+      O     "I_OBEC_PISTON_SPREZYNA"; 
+      O     "M_PRODUKT_OBECNY"; 
+      )     ; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[87]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[88]; 
+
+NETWORK
+TITLE = Step88 --> Step1 ------ KONIEC ------ 
+//- KONIEC SEKWENCJI PO BLEDZIE  Step88 --> Step1
+//
+      A     "DB20_Seq128_Kroki_Glowne".Step[88]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[88]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[1]; 
+//    S     "DB20_Seq128_Kroki_Glowne".Step[89]
+NETWORK
+TITLE = Step89 --> Step90
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[89]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[89]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[90]; 
+
+NETWORK
+TITLE = Step90 --> Step91
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[90]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[90]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[91]; 
+
+NETWORK
+TITLE = Step91 --> Step92
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[91]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[91]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[92]; 
+
+NETWORK
+TITLE = Step92 --> Step93
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[92]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[92]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[93]; 
+
+NETWORK
+TITLE = Step93 --> Step94
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[93]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[93]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[94]; 
+
+NETWORK
+TITLE = Step94 --> Step95
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[94]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[94]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[95]; 
+
+NETWORK
+TITLE = Step95 --> Step96
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[95]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[95]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[96]; 
+
+NETWORK
+TITLE = Step96 --> Step97
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[96]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[96]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[97]; 
+
+NETWORK
+TITLE = Step97 --> Step98
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[97]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[97]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[98]; 
+
+NETWORK
+TITLE = Step98 --> Step99
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[98]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[98]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[99]; 
+
+NETWORK
+TITLE = Step99 --> Step100
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[99]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[99]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[100]; 
+
+NETWORK
+TITLE = Step100 --> Step101
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[100]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[100]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[101]; 
+
+NETWORK
+TITLE = Step101 --> Step102
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[101]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[101]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[102]; 
+
+NETWORK
+TITLE = Step102 --> Step103
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[102]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[102]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[103]; 
+
+NETWORK
+TITLE = Step103 --> Step104
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[103]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[103]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[104]; 
+
+NETWORK
+TITLE = Step104 --> Step105
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[104]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[104]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[105]; 
+
+NETWORK
+TITLE = Step105 --> Step106
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[105]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[105]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[106]; 
+
+NETWORK
+TITLE = Step106 --> Step107
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[106]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[106]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[107]; 
+
+NETWORK
+TITLE = Step107 --> Step108
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[107]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[107]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[108]; 
+
+NETWORK
+TITLE = Step108 --> Step109
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[108]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[108]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[109]; 
+
+NETWORK
+TITLE = Step109 --> Step110
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[109]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[109]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[110]; 
+
+NETWORK
+TITLE = Step110 --> Step111
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[110]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[110]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[111]; 
+
+NETWORK
+TITLE = Step111 --> Step112
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[111]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[111]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[112]; 
+
+NETWORK
+TITLE = Step112 --> Step113
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[112]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[112]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[113]; 
+
+NETWORK
+TITLE = Step113 --> Step114
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[113]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[113]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[114]; 
+
+NETWORK
+TITLE = Step114 --> Step115
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[114]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[114]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[115]; 
+
+NETWORK
+TITLE = Step115 --> Step116
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[115]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[115]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[116]; 
+
+NETWORK
+TITLE = Step116 --> Step117
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[116]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[116]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[117]; 
+
+NETWORK
+TITLE = Step117 --> Step118
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[117]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[117]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[118]; 
+
+NETWORK
+TITLE = Step118 --> Step119
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[118]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[118]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[119]; 
+
+NETWORK
+TITLE = Step119 --> Step120
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[119]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[119]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[120]; 
+
+NETWORK
+TITLE = Step120 --> Step121
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[120]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[120]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[121]; 
+
+NETWORK
+TITLE = Step121 --> Step122
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[121]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[121]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[122]; 
+
+NETWORK
+TITLE = Step122 --> Step123
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[122]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[122]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[123]; 
+
+NETWORK
+TITLE = Step123 --> Step124
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[123]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[123]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[124]; 
+
+NETWORK
+TITLE = Step124 --> Step125
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[124]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[124]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[125]; 
+
+NETWORK
+TITLE = Step125 --> Step126
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[125]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[125]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[126]; 
+
+NETWORK
+TITLE = Step126 --> Step127
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[126]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[126]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[127]; 
+
+NETWORK
+TITLE = Step127 --> Step128
+//-
+      A     "DB20_Seq128_Kroki_Glowne".Step[127]; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[127]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[128]; 
+NETWORK
+TITLE =ZAPÊTLENIE
+
+      A     "DB20_Seq128_Kroki_Glowne".Step[128]; 
+      A     "I_SL_RESET"; 
+      R     "DB20_Seq128_Kroki_Glowne".Step[128]; 
+      S     "DB20_Seq128_Kroki_Glowne".Step[1]; 
+
+END_FUNCTION
+

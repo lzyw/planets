@@ -1,0 +1,758 @@
+FUNCTION_BLOCK "FB120_CYLS"
+TITLE =-------------------- OBS£UGA SI£OWNIKÓW --------------------
+//OBS£UGA SI£OWNIKÓW:
+//- Z1 - RUCH SI£OWNIKA ZAPRASOWANIA 
+//- Z2 - RUCH SI£OWNIKA DOCISKU 
+//- Z3 - RUCH SI£OWNIKA WYDANIA PRODUKTU Z GNIAZDA
+//- PODSYSY 
+//- Z4 - RUCH ZESPO£U DOCISKU PASTYLKI PIROTECHNICZNEJ
+AUTHOR : DS_Tech
+FAMILY : DS_Tech
+NAME : DS_Tech
+VERSION : 1.0
+
+
+VAR
+  ST1_Z1 : "FB101_Silownik";	
+  ST1_Z2 : "FB101_Silownik";	
+  ST1_Z3 : "FB101_Silownik";	
+  ST1_Z4 : "FB101_Silownik";	
+END_VAR
+VAR_TEMP
+  ST1_Z1_KOLIZJA_EXT : BOOL ;	
+  ST1_Z1_KOLIZJA_RET : BOOL ;	
+  ST1_Z2_KOLIZJA_EXT : BOOL ;	
+  ST1_Z2_KOLIZJA_RET : BOOL ;	
+  ST1_Z3_KOLIZJA_EXT : BOOL ;	
+  ST1_Z3_KOLIZJA_RET : BOOL ;	
+  ST1_Z4_KOLIZJA_EXT : BOOL ;	
+  ST1_Z4_KOLIZJA_RET : BOOL ;	
+END_VAR
+BEGIN
+NETWORK
+TITLE =-------------------- OBS£UGA SI£OWNIKA Z1 --------------------
+//-------------------- SI£OWNIK ZESPO£U ZGNIATANIA SPRÊ¯YNY -------------------- 
+
+
+NETWORK
+TITLE =KOLIZJA WYSUWANIA SILOWNIKA Z1
+//-
+      ON    "I_KURTYNA"; 
+      ON    "I_Z3_RET"; 
+      O(    ; // Z4 NIE MA OKREŒLONEJ POZYCJI
+      AN    "I_Z4_EXT"; 
+      AN    "I_Z4_RET"; 
+      )     ; 
+      =     "DB90_Proface".Ruchy_manu.ST1_Z1_KOLIZJA_EXT; 
+      =     #ST1_Z1_KOLIZJA_EXT; 
+NETWORK
+TITLE =KOLIZJA WSUWANIA SILOWNIKA Z1
+//-
+      ON    "I_KURTYNA"; 
+      ON    "I_Z3_RET"; 
+
+      O(    ; // Z4 NIE MA OKREŒLONEJ POZYCJI
+      AN    "I_Z4_EXT"; 
+      AN    "I_Z4_RET"; 
+      )     ; 
+      =     "DB90_Proface".Ruchy_manu.ST1_Z1_KOLIZJA_RET; 
+      =     #ST1_Z1_KOLIZJA_RET; 
+NETWORK
+TITLE =AUTO_EXT Z1
+//- WYSUN W TRYBIE AUTO
+      A     "M_MASZYNA_ZALACZONA"; 
+      A(    ; 
+      A     "M_TRYB_AUTO"; 
+      A(    ; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[18]; // zaciœniêcie piropistona
+      O     "DB20_Seq128_Kroki_Glowne".Step[19]; // postój
+      O     "DB20_Seq128_Kroki_Glowne".Step[31]; // zaciœniêcie t³oczka ze sprê¿yn¹
+      )     ; 
+      O     ; 
+      A     "M_TEST_DUMMY"; 
+      A(    ; 
+      O     "DB22_Seq128_Kroki_Dummy".Step[46]; // DUMMY 5
+      )     ; 
+      )     ; 
+      AN    #ST1_Z1_KOLIZJA_EXT; 
+      =     #ST1_Z1.AUTO_EXT; 
+NETWORK
+TITLE =AUTO_RET Z1
+//-WSUN W TRYBIE AUTO
+      A(    ; 
+      A     "M_TRYB_INIT"; 
+      A     "DB21_Seq64_Kroki_Init".Step[17]; 
+      O     ; 
+      A     "M_TRYB_AUTO"; 
+      A(    ; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[20]; //powrót po zaciœniêciu 1
+      O     "DB20_Seq128_Kroki_Glowne".Step[34]; //powrót po zaciœniêciu 2
+      O     "DB20_Seq128_Kroki_Glowne".Step[45]; //powrót do bazy po NOK
+      O     "DB20_Seq128_Kroki_Glowne".Step[49]; //powrót w przypadku ok lub nok    
+      O     "DB20_Seq128_Kroki_Glowne".Step[80]; //powrót do bazy w krokach g³ównych - B£¥D, NOK
+      )     ; 
+      O     ; 
+      A     "M_TEST_DUMMY"; 
+      A(    ; 
+      O     "DB22_Seq128_Kroki_Dummy".Step[48]; // DUMMY 5
+      O     "DB22_Seq128_Kroki_Dummy".Step[85]; // DUMMY 5 NOK
+      O     "DB22_Seq128_Kroki_Dummy".Step[110]; 
+      )     ; 
+      )     ; 
+      AN    #ST1_Z1_KOLIZJA_RET; 
+      =     #ST1_Z1.AUTO_RET; 
+NETWORK
+TITLE =MANU_EXT Z1
+//- WYSUN W TRYBIE MANU
+      A     "M_TRYB_REKA"; 
+      A     "I_KURTYNA"; 
+      A     "DB90_Proface".Ruchy_manu.ST1_Z1_EXT; 
+      AN    #ST1_Z1_KOLIZJA_EXT; 
+      =     #ST1_Z1.MANU_EXT; 
+NETWORK
+TITLE =MANU_RET Z1
+//- WSUN W TRYBIE MANU
+      A     "M_TRYB_REKA"; 
+      A     "I_KURTYNA"; 
+      A     "DB90_Proface".Ruchy_manu.ST1_Z1_RET; 
+      AN    #ST1_Z1_KOLIZJA_RET; 
+      =     #ST1_Z1.MANU_RET; 
+NETWORK
+TITLE ="RESET" SILOWNIKA Z1
+//-
+      ON    "I_KURTYNA"; 
+      ON    "M_MASZYNA_ZALACZONA"; 
+      =     #ST1_Z1.RESET; 
+NETWORK
+TITLE ="STOP" SILOWNIKA Z1
+//-
+      A     "LOG0"; 
+      =     #ST1_Z1.STOP; 
+NETWORK
+TITLE =WYWOLANIE FUNKCJI OBSLUGUJACEJ SILOWNIK Z1
+//- JE¯ELI SI£OWNIK Z4 JEST WSUNIÊTY, Z1 POWINIEN JEDZIÆ NA CA£EJ D£UGOŒCI
+//(DO KRAÑCÓWKI I_Z1_EXT)
+//- JE¯ELI Z4 JEST WYSUNIÊTY, Z1 POWINIEN JEDZIÆ DO POZYCJI POŒREDNIEJ 
+//I_Z1_POZ_SRODKOWA
+      A     "I_Z4_RET"; 
+      AN    "I_Z4_EXT"; 
+      A     "I_Z1_EXT"; 
+      O     ; 
+      AN    "I_Z4_RET"; 
+      A     "I_Z4_EXT"; 
+      A     "I_Z1_POZ_SRODKOWA"; 
+      =     "M_Z1_EXT"; 
+      =     "DB120_CYLS".ST1_Z1.I_EXT; 
+
+      CALL #ST1_Z1 (
+           FLT_ACK                  := "I_SL_RESET",
+           S5T_EXT                  := "DB9_Parametry".Z1_BLAD_EXT_CZAS_S5,
+           S5T_RET                  := "DB9_Parametry".Z1_BLAD_RET_CZAS_S5,
+           S5T_PARRITY              := S5T#100MS,
+           S5T_START_EXT            := S5T#100MS,
+           S5T_START_RET            := S5T#100MS,
+           T1_FB                    := "T1_ST1_Z1",
+           T2_FB                    := "T2_ST1_Z1",
+           T3_FB                    := "T3_ST1_Z1",
+           T4_FB                    := "T4_ST1_Z1",
+           T5_FB                    := "T5_ST1_Z1",
+           Q_EXT                    := "Q_Z1_EXT",
+           Q_RET                    := "Q_Z1_RET",
+           I_RET                    := "I_Z1_RET");
+
+NETWORK
+TITLE =------------------------ OBS£UGA HGL -------------------------
+//---------- ZABEZPIECZENIE PRZED RUCHEM SI£OWNIKÓW Z1, Z4 ----------
+
+
+NETWORK
+TITLE =ZA£ACZ HGL Z1,Z4 - ZABEZPIECZENIE SI£OWNIKÓW Z1, Z4
+
+      A(    ; 
+      O     #ST1_Z1.AUTO_EXT; 
+      O     #ST1_Z1.AUTO_RET; 
+      O     #ST1_Z1.MANU_RET; 
+      O     #ST1_Z1.MANU_EXT; 
+      O     #ST1_Z4.AUTO_EXT; 
+      O     #ST1_Z4.AUTO_RET; 
+      O     #ST1_Z4.MANU_RET; 
+      O     #ST1_Z4.MANU_EXT; 
+      )     ; 
+      S     "Q_ZAL_HGL"; 
+
+      AN    "I_KURTYNA"; 
+      R     "Q_ZAL_HGL"; 
+
+NETWORK
+TITLE =-------------------- OBS£UGA SI£OWNIKA Z2 --------------------
+//------------- OBS£UGA DOCISKU PASTYLKI PIROTECHNICZNEJ ------------
+
+
+NETWORK
+TITLE =KOLIZJA WYSUWANIA SILOWNIKA Z2
+//-
+      ON    "I_KURTYNA"; 
+      =     "DB90_Proface".Ruchy_manu.ST1_Z2_KOLIZJA_EXT; 
+      =     #ST1_Z2_KOLIZJA_EXT; 
+NETWORK
+TITLE =KOLIZJA WSUWANIA SILOWNIKA Z2
+//-
+      ON    "I_KURTYNA"; 
+      =     #ST1_Z2_KOLIZJA_RET; 
+NETWORK
+TITLE =AUTO_EXT Z2
+//- WYSUN W TRYBIE AUTO
+      A     "M_MASZYNA_ZALACZONA"; 
+      A(    ; 
+      A     "M_TRYB_INIT"; 
+      A     "DB21_Seq64_Kroki_Init".Step[19]; 
+      O     ; 
+      A     "M_TRYB_AUTO"; 
+      A(    ; 
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     17; 
+      >=I   ; 
+      )     ; 
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     29; 
+      <=I   ; 
+      )     ; 
+      )     ; 
+      O     ; 
+      A     "M_TRYB_AUTO"; 
+      A(    ; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[37]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[49]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[81]; 
+      )     ; 
+      O     ; 
+
+      A     "M_TEST_DUMMY"; 
+      A(    ; 
+      O     "DB22_Seq128_Kroki_Dummy".Step[23]; // DUMMY 3
+      O     "DB22_Seq128_Kroki_Dummy".Step[46]; // DUMMY 5
+      O     "DB22_Seq128_Kroki_Dummy".Step[85]; // DUMMY 5 NOK
+      O     "DB22_Seq128_Kroki_Dummy".Step[110]; 
+      )     ; 
+      )     ; 
+      AN    #ST1_Z2_KOLIZJA_EXT; 
+      =     #ST1_Z2.AUTO_EXT; 
+NETWORK
+TITLE =AUTO_RET Z2
+//-WSUN W TRYBIE AUTO
+      A     "M_TRYB_AUTO"; 
+      A(    ; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[34]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[80]; 
+      )     ; 
+      AN    #ST1_Z2_KOLIZJA_RET; 
+      =     #ST1_Z2.AUTO_RET; 
+NETWORK
+TITLE =MANU_EXT Z2
+//- WYSUN W TRYBIE MANU
+      A     "M_TRYB_REKA"; 
+      A     "DB90_Proface".Ruchy_manu.ST1_Z2_EXT; 
+      AN    #ST1_Z2_KOLIZJA_EXT; 
+      =     #ST1_Z2.MANU_EXT; 
+NETWORK
+TITLE =MANU_RET Z2
+//- WSUN W TRYBIE MANU
+      A     "M_TRYB_REKA"; 
+      A     "DB90_Proface".Ruchy_manu.ST1_Z2_RET; 
+      AN    #ST1_Z2_KOLIZJA_RET; 
+      =     #ST1_Z2.MANU_RET; 
+NETWORK
+TITLE ="RESET" SILOWNIKA Z2
+//-
+      ON    "I_KURTYNA"; 
+      ON    "M_MASZYNA_ZALACZONA"; 
+      =     #ST1_Z2.RESET; 
+NETWORK
+TITLE ="STOP" SILOWNIKA Z2
+//-
+      A     "LOG0"; 
+      =     #ST1_Z2.STOP; 
+
+NETWORK
+TITLE =Obs³uga krañcówki Z2_EXT
+//- BRAK B£ÊDU KOLIZJI I PARZYSTOŒÆI
+//
+// sygna³ "wysuniêty" jeœli jest faktycznie
+// wysuniêty (I_Z2_EXT) lub jeœli napêd Z1 siê
+// wysun¹³ (M_Z1_EXT) i przez to cofn¹³ trzon Z2,
+// ale nie do pozycji wsuniêtej (I_Z2_RET)
+//WICI 2016-10-14 maybe add Q_Z2_EXT
+//agree??
+//yes, but not with output, but with M_ semi-output request
+      A     "I_Z2_EXT"; 
+      O     ; 
+      A     "M_Z1_EXT"; 
+      AN    "I_Z2_EXT"; 
+      AN    "I_Z2_RET"; 
+      O     ; 
+//WICI 2016-10-14 I don't get it, why the Z1 return position would
+//block the Z2 ext limit switch read and still give "good" M_Z2_EXT??
+//this is to cheat on the limit switch checking after 2nd pressing
+      A     "I_Z1_RET"; 
+      AN    "I_Z2_EXT"; 
+      AN    "I_Z2_RET"; 
+      =     "M_Z2_EXT"; 
+
+NETWORK
+TITLE =WYWOLANIE FUNKCJI OBSLUGUJACEJ SILOWNIK Z2
+//-
+      CALL #ST1_Z2 (
+           FLT_ACK                  := "I_SL_RESET",
+           S5T_EXT                  := S5T#10S,
+           S5T_RET                  := S5T#10S,
+           S5T_START_EXT            := S5T#0MS,
+           S5T_START_RET            := S5T#0MS,
+           T1_FB                    := "T1_ST1_Z2",
+           T2_FB                    := "T2_ST1_Z2",
+           T3_FB                    := "T3_ST1_Z2",
+           T4_FB                    := "T4_ST1_Z2",
+           T5_FB                    := "T5_ST1_Z2",
+           Q_EXT                    := "M_Z2_EXT_Q",
+           Q_RET                    := "M_Z2_RET_Q",
+           I_EXT                    := "M_Z2_EXT",
+           I_RET                    := "I_Z2_RET");
+
+NETWORK
+TITLE =SPUSZCZANIE POWIETRZA Z SI£OWNIKA Z2
+//- SI£OWNIK Z2 MO¯E RUSZAÆ SIÊ SWOBODNIE PO SPUSZCZENIU POWIETRZA
+      A     "M_Z2_DROP_PRESSURE"; 
+//   AN    "M_Z2_EXT_Q"
+//   AN    "M_Z2_RET_Q"
+//WICI 2016-10-16 WOOT?!
+      O     ; 
+      A     #ST1_Z2.MANU_RET; 
+
+//      =     "Q_Z2_VALVE"
+//      =     "Q_Z2_DROP_PRESS"
+      S     "Q_Z2_VALVE"; 
+      S     "Q_Z2_DROP_PRESS"; 
+      R     "Q_Z2_EXT"; 
+      R     "Q_Z2_RET"; 
+
+NETWORK
+TITLE =WYSUNIÊCIE I WSUNIÊCIE Z2
+// wysuw 
+      AN    "M_Z2_DROP_PRESSURE"; 
+      A     #ST1_Z2.AUTO_EXT; 
+      AN    #ST1_Z2.AUTO_RET; 
+      O     ; 
+      A     #ST1_Z2.MANU_EXT; 
+//      =     "Q_Z2_EXT"
+      R     "Q_Z2_VALVE"; 
+      S     "Q_Z2_DROP_PRESS"; 
+      S     "Q_Z2_EXT"; 
+      R     "Q_Z2_RET"; 
+
+//////
+// wsuw
+      AN    "M_Z2_DROP_PRESSURE"; 
+      AN    #ST1_Z2.AUTO_EXT; 
+      A     #ST1_Z2.AUTO_RET; 
+      O     ; 
+      A     #ST1_Z2.MANU_RET; 
+//      =     "Q_Z2_VALVE"
+//      =     "Q_Z2_RET"
+      S     "Q_Z2_VALVE"; 
+      R     "Q_Z2_DROP_PRESS"; 
+      R     "Q_Z2_EXT"; 
+      S     "Q_Z2_RET"; 
+
+// ani wsuw ani wysuw ani nic
+//WICI 2016-10-16 there is no nothing, because manual mode is shit (ie. impulse, not state based)
+
+//      AN(   
+//      A     "M_Z2_DROP_PRESSURE"
+//      AN    "M_Z2_EXT_Q"
+//      AN    "M_Z2_RET_Q"
+//      O     
+//      A     #ST1_Z2.MANU_RET
+//      )     
+//      AN(   
+//      AN    "M_Z2_DROP_PRESSURE"
+//      A     #ST1_Z2.AUTO_EXT
+//      AN    #ST1_Z2.AUTO_RET
+//      O     
+//      A     #ST1_Z2.MANU_EXT
+//      )     
+//      AN(   
+//      AN    "M_Z2_DROP_PRESSURE"
+//      AN    #ST1_Z2.AUTO_EXT
+//      A     #ST1_Z2.AUTO_RET
+//      O     
+//      A     #ST1_Z2.MANU_RET
+//      )     
+//      R     "Q_Z2_VALVE"
+//      R     "Q_Z2_DROP_PRESS"
+//      R     "Q_Z2_EXT"
+//      R     "Q_Z2_RET"
+
+
+
+
+
+NETWORK
+TITLE =-------------------- OBS£UGA SI£OWNIKA Z3 --------------------
+//------------ WYSÓW PRODUKTU Z GNIAZDA ------------ 
+
+
+NETWORK
+TITLE =KOLIZJA WYSUWANIA SILOWNIKA Z3
+//-
+      ON    "I_KURTYNA"; 
+      ON    "I_Z1_RET"; 
+      ON    "I_Z4_RET"; 
+      =     "DB90_Proface".Ruchy_manu.ST1_Z3_KOLIZJA_EXT; 
+      =     #ST1_Z3_KOLIZJA_EXT; 
+NETWORK
+TITLE =KOLIZJA WSUWANIA SILOWNIKA Z3
+//-
+      ON    "I_KURTYNA"; 
+      ON    "I_Z1_RET"; 
+      ON    "I_Z4_RET"; 
+      =     "DB90_Proface".Ruchy_manu.ST1_Z3_KOLIZJA_RET; 
+      =     #ST1_Z3_KOLIZJA_RET; 
+NETWORK
+TITLE =AUTO_EXT Z3
+//- WYSUN W TRYBIE AUTO
+      A     "M_MASZYNA_ZALACZONA"; 
+      A(    ; 
+      A     "M_TRYB_INIT"; 
+      A     "DB21_Seq64_Kroki_Init".Step[23]; 
+      O     ; 
+      A     "M_TRYB_AUTO"; 
+      A(    ; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[3]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[4]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[6]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[37]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[45]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[49]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[83]; 
+      )     ; 
+      O     ; 
+      A     "M_TEST_DUMMY"; 
+      A(    ; 
+      O     "DB22_Seq128_Kroki_Dummy".Step[3]; // dummy 1 start    
+      O     "DB22_Seq128_Kroki_Dummy".Step[13]; // dummy 2 start  
+      O     "DB22_Seq128_Kroki_Dummy".Step[23]; // dummy 3 start  
+      O     "DB22_Seq128_Kroki_Dummy".Step[33]; // dummy 4 start  
+      O     "DB22_Seq128_Kroki_Dummy".Step[43]; // dummy 5 start
+      O     "DB22_Seq128_Kroki_Dummy".Step[51]; // dummy 5 finish  
+      O     "DB22_Seq128_Kroki_Dummy".Step[53]; // dummy 6 start   
+      O     "DB22_Seq128_Kroki_Dummy".Step[9]; // DUMMY 1
+      O     "DB22_Seq128_Kroki_Dummy".Step[85]; // DUMMY 5 NOK
+      )     ; 
+      )     ; 
+      AN    #ST1_Z3_KOLIZJA_EXT; 
+      =     #ST1_Z3.AUTO_EXT; 
+NETWORK
+TITLE =AUTO_RET Z3
+//-WSUN W TRYBIE AUTO
+      A     "M_MASZYNA_ZALACZONA"; 
+      A(    ; 
+      A     "M_TRYB_AUTO"; 
+      A(    ; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[14]; 
+//WICI 2016-10-14 we could add step[15] here, as we need to hold the actuator in position there as well
+//WICI 2016-10-14 and maybe further on as well??
+//WICI 2016-10-14 or do we just assume that the down position is super stable and unmovable?!
+      )     ; 
+      O     ; 
+      A     "M_TEST_DUMMY"; 
+      A(    ; 
+      O     "DB22_Seq128_Kroki_Dummy".Step[7]; // DUMMY 1
+      O     "DB22_Seq128_Kroki_Dummy".Step[46]; // DUMMY 5
+      O     "DB22_Seq128_Kroki_Dummy".Step[110]; // powrót do sprawdzenia z³ego dummy w gnieŸdzie
+      )     ; 
+      )     ; 
+      AN    #ST1_Z3_KOLIZJA_RET; 
+      =     #ST1_Z3.AUTO_RET; 
+
+NETWORK
+TITLE =MANU_EXT Z3
+//- WYSUN W TRYBIE MANU
+      A     "M_TRYB_REKA"; 
+      A     "DB90_Proface".Ruchy_manu.ST1_Z3_EXT; 
+      AN    #ST1_Z3_KOLIZJA_EXT; 
+      =     #ST1_Z3.MANU_EXT; 
+NETWORK
+TITLE =MANU_RET Z3
+//- WSUN W TRYBIE MANU
+      A     "M_TRYB_REKA"; 
+      A     "DB90_Proface".Ruchy_manu.ST1_Z3_RET; 
+      AN    #ST1_Z3_KOLIZJA_RET; 
+      =     #ST1_Z3.MANU_RET; 
+NETWORK
+TITLE ="RESET" SILOWNIKA Z3
+//-
+      ON    "I_KURTYNA"; 
+      ON    "M_MASZYNA_ZALACZONA"; 
+      =     #ST1_Z3.RESET; 
+NETWORK
+TITLE ="STOP" SILOWNIKA Z3
+//-
+      A     "LOG0"; 
+      =     #ST1_Z3.STOP; 
+NETWORK
+TITLE =WYWOLANIE FUNKCJI OBSLUGUJACEJ SILOWNIK Z3
+//-
+      CALL #ST1_Z3 (
+           FLT_ACK                  := "I_SL_RESET",
+           S5T_EXT                  := S5T#10S,
+           S5T_RET                  := S5T#10S,
+           S5T_PARRITY              := S5T#100MS,
+           S5T_START_EXT            := S5T#0MS,
+           S5T_START_RET            := S5T#0MS,
+           T1_FB                    := "T1_ST1_Z3",
+           T2_FB                    := "T2_ST1_Z3",
+           T3_FB                    := "T3_ST1_Z3",
+           T4_FB                    := "T4_ST1_Z3",
+           T5_FB                    := "T5_ST1_Z3",
+           Q_EXT                    := "Q_Z3_EXT",
+           Q_RET                    := "Q_Z3_RET",
+           I_EXT                    := "I_Z3_EXT",
+           I_RET                    := "I_Z3_RET");
+
+NETWORK
+TITLE =-------------------- OBS£UGA PODSYS --------------------
+//------------ PODSYS ELEMENTU NA STOLE MONTA¯OWYM ------------ 
+
+
+NETWORK
+TITLE =AUTO_PODSYS
+//---------
+//BY£O:
+//---------
+//
+//      A(    
+//      O     "M_TRYB_AUTO"
+//      O     "M_TRYB_INIT"
+//      )     
+//      A(    
+//      A(    
+//      L     "DB20_Seq128_Kroki_Glowne".StepNr
+//      L     1
+//      >=I   
+//      )     
+//      A(    
+//      L     "DB20_Seq128_Kroki_Glowne".StepNr
+//      L     27
+//      <=I   
+//      )     
+//      )     
+//      AN    "DB6_Error".JEST_BLAD
+//      A(    
+//      O     "DB90_Proface".Ruchy_manu.PODSYS_ENABLE
+//      O     "M_PODSYS_ENABLE"
+//      )     
+//      AN    "I_Z3_EXT"
+//      A     "I_OBEC_TLOCZKA"
+//      S     "Q_PODSYS"
+//
+      A     "M_MASZYNA_ZALACZONA"; 
+      A(    ; 
+
+      A     "M_TRYB_INIT"; 
+      A(    ; 
+      L     "DB21_Seq64_Kroki_Init".StepNr; 
+      L     23; 
+      >=I   ; 
+      )     ; 
+
+      O     ; 
+
+      A     "M_TRYB_AUTO"; 
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     1; 
+      >=I   ; 
+      )     ; 
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     27; 
+      <=I   ; 
+      )     ; 
+
+      O     ; 
+// for suction during second press/liftof so that the product is not dragged upwards
+      A     "M_TRYB_AUTO"; 
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     33; 
+      >=I   ; 
+      )     ; 
+      A(    ; 
+      L     "DB20_Seq128_Kroki_Glowne".StepNr; 
+      L     34; 
+      <=I   ; 
+      )     ; 
+
+      O     ; 
+
+      A     "M_TRYB_REKA"; 
+      A(    ; 
+      O     "DB90_Proface".Ruchy_manu.PODSYS_ENABLE; 
+      )     ; 
+
+
+      )     ; 
+      A     "M_PODSYS_ENABLE"; 
+      AN    "DB6_Error".JEST_BLAD; 
+// the condition below is commented to allow for suction during 2nd pressing when the z3 is out
+//    A     "I_Z3_EXT"
+
+      S     "Q_PODSYS"; 
+
+NETWORK
+TITLE =MANU_PODSYS
+
+      A     "M_TRYB_REKA"; 
+//A     "I_OBEC_TLOCZKA"
+      AN    "DB6_Error".JEST_BLAD; 
+      A     "DB90_Proface".Ruchy_manu.PODSYS_ENABLE; 
+      S     "Q_PODSYS"; 
+
+NETWORK
+TITLE =RESET_PODSYS
+
+      A     "M_TRYB_REKA"; 
+      AN    "DB90_Proface".Ruchy_manu.PODSYS_ENABLE; 
+      O     ; 
+      A     "M_TRYB_INIT"; 
+      A(    ; 
+      O     "DB21_Seq64_Kroki_Init".Step[23]; 
+      )     ; 
+      O     ; 
+      A     "M_TRYB_AUTO"; 
+      A(    ; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[37]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[27]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[80]; 
+      ON    "M_PODSYS_ENABLE"; 
+      )     ; 
+
+      O     "M_BRAK_TRYBU_PULS_P"; 
+      O     "I_SL_RESET"; 
+      O     "DB6_Error".JEST_BLAD; 
+//ON    "I_OBEC_TLOCZKA"
+
+      R     "Q_PODSYS"; 
+      R     "Q_DMUCH"; 
+
+
+NETWORK
+TITLE =-------------------- OBS£UGA SI£OWNIKA Z4 --------------------
+//------------ Z4 DOSÓW UK£ADU DOCISKU PIROPISTONA ------------ 
+
+
+NETWORK
+TITLE =KOLIZJA WYSUWANIA SILOWNIKA Z4
+
+      ON    "I_KURTYNA"; 
+      ON    "I_Z1_RET"; 
+      ON    "I_Z3_RET"; 
+      =     "DB90_Proface".Ruchy_manu.ST1_Z4_KOLIZJA_EXT; 
+      =     #ST1_Z4_KOLIZJA_EXT; 
+NETWORK
+TITLE =KOLIZJA WSUWANIA SILOWNIKA Z4
+
+      ON    "I_KURTYNA"; 
+      ON    "I_Z1_RET"; 
+      ON    "I_Z3_RET"; 
+      =     "DB90_Proface".Ruchy_manu.ST1_Z4_KOLIZJA_RET; 
+      =     #ST1_Z4_KOLIZJA_RET; 
+NETWORK
+TITLE =AUTO_EXT Z4
+
+      A     "M_MASZYNA_ZALACZONA"; 
+      A(    ; 
+      A     "M_TRYB_AUTO"; 
+      A(    ; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[17]; 
+      )     ; 
+      O     ; 
+      A     "M_TEST_DUMMY"; 
+      A(    ; 
+      O     "DB22_Seq128_Kroki_Dummy".Step[46]; // DUMMY 5
+      )     ; 
+      )     ; 
+      AN    #ST1_Z4_KOLIZJA_EXT; 
+      =     #ST1_Z4.AUTO_EXT; 
+NETWORK
+TITLE =AUTO_RET Z4
+
+      A     "M_MASZYNA_ZALACZONA"; 
+      A(    ; 
+      A     "M_TRYB_INIT"; 
+      A     "DB21_Seq64_Kroki_Init".Step[21]; 
+      O     ; 
+      A     "M_TRYB_AUTO"; 
+      A(    ; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[21]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[45]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[49]; 
+      O     "DB20_Seq128_Kroki_Glowne".Step[82]; 
+      )     ; 
+      O     ; 
+      A     "M_TEST_DUMMY"; 
+      A(    ; 
+      O     "DB22_Seq128_Kroki_Dummy".Step[48]; // DUMMY 5
+      O     "DB22_Seq128_Kroki_Dummy".Step[85]; 
+      O     "DB22_Seq128_Kroki_Dummy".Step[110]; 
+      )     ; 
+      )     ; 
+      AN    #ST1_Z4_KOLIZJA_RET; 
+      =     #ST1_Z4.AUTO_RET; 
+NETWORK
+TITLE =MANU_EXT Z4
+
+      A     "M_TRYB_REKA"; 
+      A     "DB90_Proface".Ruchy_manu.ST1_Z4_EXT; 
+      AN    #ST1_Z4_KOLIZJA_EXT; 
+      =     #ST1_Z4.MANU_EXT; 
+NETWORK
+TITLE =MANU_RET Z4
+
+      A     "M_TRYB_REKA"; 
+      A     "DB90_Proface".Ruchy_manu.ST1_Z4_RET; 
+      AN    #ST1_Z4_KOLIZJA_RET; 
+      =     #ST1_Z4.MANU_RET; 
+NETWORK
+TITLE ="RESET" SILOWNIKA Z4
+
+      ON    "I_KURTYNA"; 
+      ON    "M_MASZYNA_ZALACZONA"; 
+      =     #ST1_Z4.RESET; 
+NETWORK
+TITLE ="STOP" SILOWNIKA Z4
+
+      A     "LOG0"; 
+      =     #ST1_Z4.STOP; 
+NETWORK
+TITLE =WYWOLANIE FUNKCJI OBSLUGUJACEJ SILOWNIK Z4
+
+      CALL #ST1_Z4 (
+           FLT_ACK                  := "I_SL_RESET",
+           S5T_EXT                  := S5T#10S,
+           S5T_RET                  := S5T#10S,
+           S5T_PARRITY              := S5T#10MS,
+           S5T_START_EXT            := S5T#0MS,
+           S5T_START_RET            := S5T#0MS,
+           T1_FB                    := "T1_ST1_Z4",
+           T2_FB                    := "T2_ST1_Z4",
+           T3_FB                    := "T3_ST1_Z4",
+           T4_FB                    := "T4_ST1_Z4",
+           T5_FB                    := "T5_ST1_Z4",
+           Q_EXT                    := "Q_Z4_EXT",
+           Q_RET                    := "Q_Z4_RET",
+           I_EXT                    := "I_Z4_EXT",
+           I_RET                    := "I_Z4_RET");
+END_FUNCTION_BLOCK
+

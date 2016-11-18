@@ -1,0 +1,104 @@
+FUNCTION "FC_GetStepNr" : INT
+TITLE =   Sequence step nr evaluating
+//-
+//KNOW_HOW_PROTECT 
+VERSION : 0.0
+
+
+VAR_INPUT
+  In_SeqStructPtr : ANY ;	
+END_VAR
+VAR_TEMP
+  TempDbNr : INT ;	
+  TempStartAddr : DWORD ;	
+  TempRepFactor : INT ;	
+  TempLoopingCounter : INT ;	
+  TempBitInByte : INT ;	
+  TempMaxStep : INT ;	
+END_VAR
+BEGIN
+NETWORK
+TITLE =   Calculating sequence struct properties
+//-
+      L     P##In_SeqStructPtr; 
+      LAR1  ; 
+
+//Sequence struct DB Nr
+      L     W [AR1,P#4.0]; 
+      T     #TempDbNr; 
+
+//Sequence struct start address
+      L     D [AR1,P#6.0]; 
+      AD    DW#16#FFFFFF; 
+      T     #TempStartAddr; 
+
+//Sequence struct repetition factor
+      L     W [AR1,P#2.0]; 
+      T     #TempRepFactor; 
+
+NETWORK
+TITLE = Initialize temp variables
+//-
+      L     0; 
+      T     #TempBitInByte; 
+
+//Sequenece struct max step
+      L     #TempRepFactor; 
+      L     8; 
+      *I    ; 
+      T     #TempMaxStep; 
+
+
+NETWORK
+TITLE = Sequence bytes searching
+//-
+      OPN   DB [#TempDbNr]; 
+      LAR1  #TempStartAddr; 
+
+      L     #TempRepFactor; 
+LOOP: T     #TempLoopingCounter; 
+
+      L     DBB [AR1,P#0.0]; 
+      L     0; 
+      <>I   ; 
+      JCN   GNR; 
+
+      TAK   ; 
+      DTR   ; 
+      ABS   ; 
+      LN    ; 
+      L     1.443000e+000; 
+      *R    ; 
+      TRUNC ; 
+      +     1; 
+      T     #TempBitInByte; 
+      JU    END; 
+
+GNR:  NOP   0; 
+      +AR1  P#1.0; 
+      L     #TempLoopingCounter; 
+      LOOP  LOOP; 
+      T     #TempLoopingCounter; 
+
+
+NETWORK
+TITLE = Step number evaluating
+//-
+END:  NOP   0; 
+//Max step limit checking
+      L     #TempLoopingCounter; 
+      L     0; 
+      <>I   ; 
+      JCN   OVFL; 
+
+      L     #TempRepFactor; 
+      L     #TempLoopingCounter; 
+      -I    ; 
+      L     8; 
+      *I    ; 
+      L     #TempBitInByte; 
+      +I    ; 
+
+OVFL: T     #RET_VAL; 
+END_FUNCTION
+

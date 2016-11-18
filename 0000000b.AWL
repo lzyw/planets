@@ -1,0 +1,1724 @@
+FUNCTION "FC22_Seq128_Kroki_Dummy" : VOID
+TITLE =    Sequence template - 128 steps
+//
+AUTHOR : DS_Tech
+FAMILY : DS_Tech
+NAME : DS_Tech
+VERSION : 1.0
+
+
+VAR_TEMP
+  CurrentStep : BOOL ;	
+END_VAR
+BEGIN
+NETWORK
+TITLE =SKAN PIERWSZY, RESET STANU DUMMY
+
+      O     "M_FIRST_SCAN"; 
+      O     "M_WYLACZONA_PULS"; 
+      O     "M_ESTOP_PULS_N"; 
+      JCN   next; 
+      R     "M_DUMMY_OK"; 
+      L     1; 
+      T     "M_DUMMY_NR_ARTYK"; 
+
+next: NOP   0; 
+NETWORK
+TITLE =WARUNKI NA RESET
+
+      ON    "M_TEST_DUMMY"; 
+      O     "M_DUMMY_OK"; 
+      O     "DB6_Error".JEST_BLAD; 
+      =     "DB22_Seq128_Kroki_Dummy".Reset; 
+
+NETWORK
+TITLE =NIEUPOWA¯NIONE WEJŒCIE W KURTYNE -> SKOK DO STEP90
+//DUMMY 1: Step5 - Step7
+//DUMMY 2: Step15 - Step17
+//DUMMY 3: Step25 - Step27
+//DUMMY 4: Step35 - Step37
+//DUMMY 5: Step45 - Step48
+//DUMMY 6: Step55 - Step57
+//WICI 2016-10-14 check if nothing moved!
+      A(    ; 
+// DUMMY 1 //
+      A(    ; 
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     5; 
+      >=I   ; 
+      )     ; 
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     8; 
+      <I    ; 
+      )     ; 
+      )     ; 
+      O     ; 
+// DUMMY 2 //
+      A(    ; 
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     15; 
+      >=I   ; 
+      )     ; 
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     18; 
+      <I    ; 
+      )     ; 
+      )     ; 
+      O     ; 
+// DUMMY 3 //
+      A(    ; 
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     25; 
+      >=I   ; 
+      )     ; 
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     28; 
+      <I    ; 
+      )     ; 
+      )     ; 
+      O     ; 
+// DUMMY 4 //
+      A(    ; 
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     35; 
+      >=I   ; 
+      )     ; 
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     38; 
+      <I    ; 
+      )     ; 
+      )     ; 
+      O     ; 
+// DUMMY 5 //
+      A(    ; 
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     45; 
+      >=I   ; 
+      )     ; 
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     49; 
+      <I    ; 
+      )     ; 
+      )     ; 
+      O     ; 
+// DUMMY 6 //
+      A(    ; 
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     55; 
+      >=I   ; 
+      )     ; 
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     58; 
+      <I    ; 
+      )     ; 
+      )     ; 
+      )     ; 
+      AN    "I_KURTYNA"; 
+
+      JCN   M002; 
+      L     L#0; 
+      T     DBD    0; 
+      T     DBD    4; 
+      T     DBD    8; 
+      T     DBD   12; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[90]; 
+
+M002: NOP   0; 
+
+NETWORK
+TITLE = Sequence reset
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Reset; 
+      JCN   RST; 
+      OPN   "DB22_Seq128_Kroki_Dummy"; 
+      L     L#0; 
+      T     DBD    0; 
+      T     DBD    4; 
+      T     DBD    8; 
+      T     DBD   12; 
+
+      R     "DB6_Error".BLAD_SEKWENCJI; 
+RST:  NOP   0; 
+NETWORK
+TITLE = Calculate step number
+
+      CALL "FC1_GetStepNr" (
+           In_SeqStructPtr          := "DB22_Seq128_Kroki_Dummy".Step,
+           RET_VAL                  := "DB22_Seq128_Kroki_Dummy".StepNr);
+
+NETWORK
+TITLE =  Sequence start codition
+//-
+      OPN   "DB22_Seq128_Kroki_Dummy"; 
+      L     DBD    0; 
+      L     DBD    4; 
+      OD    ; 
+      L     DBD    8; 
+      OD    ; 
+      L     DBD   12; 
+      OD    ; 
+      L     L#0; 
+      ==D   ; 
+      AN    "DB22_Seq128_Kroki_Dummy".Reset; 
+      A     "M_TEST_DUMMY"; 
+      SAVE  ; 
+
+      JCN   load; 
+
+      L     1; 
+      T     "DB131_Kamera".Inspection_Nr; 
+
+load: NOP   0; 
+
+      A     BR; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[1]; 
+NETWORK
+TITLE =WARUNEK NA ZAKOÑCZENIE FUNKCJI
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Reset; 
+      BEC   ; 
+NETWORK
+TITLE = Step1 --> Step2 POMINIÊCIE DUMMY
+//POMINIÊCIE KROKÓW DUMMY - SKOK DO KOÑCA [79]
+      A     "DB22_Seq128_Kroki_Dummy".Step[1]; 
+      SAVE  ; 
+
+      A     "M_DUMMY_POMIN"; 
+      O     "M_DUMMY_OK"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[1]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[79]; 
+
+      A     BR; 
+      AN    "M_DUMMY_POMIN"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[1]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[2]; 
+NETWORK
+TITLE = Step2 --> Step3 START DUMMY
+//ROZPOCZNIJ DUMMY
+      A     "DB22_Seq128_Kroki_Dummy".Step[2]; 
+      A     "M_SL_CYKL_PULS_P"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[2]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[3]; 
+NETWORK
+TITLE = Step3 --> Step4 - DUMMY 1 - w³o¿enie produktu
+//- DUMMY 1 -
+      A     "DB22_Seq128_Kroki_Dummy".Step[3]; 
+      L     S5T#1S; 
+      SD    "T_DELAY_DUMMY1_START"; 
+
+      A     "T_DELAY_DUMMY1_START"; 
+
+// DUMMY 1 jest wykrywane przez I_OBEC_PRODUKTU
+      A     "I_OBEC_PRODUKTU"; 
+
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_NOK; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[3]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[4]; 
+
+NETWORK
+TITLE = Step4 --> Step5 - wyci¹gniêcie r¹k
+//OCZEKIWANIE NA WYCI¥GNIÊCIE R¥K Z KURTYNY, SPRAWDZANIE CZY PRODUKT NIE ZOSTANIE 
+//WYCI¥GNIÊTY Z GNIAZDA
+      A     "DB22_Seq128_Kroki_Dummy".Step[4]; 
+      SAVE  ; 
+//  Step4 --> Step5,
+      A     "I_OBEC_PRODUKTU"; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[4]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[5]; 
+
+//  Step4 --> Step3,
+      A     BR; 
+      A     "I_KURTYNA"; 
+      AN    "I_OBEC_PRODUKTU"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[4]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[3]; 
+NETWORK
+TITLE = Step5 --> Step6 - artyku³ nr 1, inspekcja nr 1, start kamery
+//OBECNOSC ARTYKU£U 1 
+      A     "DB22_Seq128_Kroki_Dummy".Step[5]; 
+      A     "I_KURTYNA"; 
+      SAVE  ; 
+
+      JCN   _001; 
+
+      L     1; 
+      T     "M_DUMMY_NR_ARTYK"; 
+      L     1; 
+      T     "DB131_Kamera".Inspection_Nr; 
+
+      A     BR; 
+      S     "M_CAM1_SEQ_START"; 
+
+_001: NOP   0; 
+      A     BR; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[5]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[6]; 
+NETWORK
+TITLE = Step6 --> Step7 - weryfikacja wizyjna
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[6]; 
+      A     "DB131_Kamera".DONE; 
+      SAVE  ; 
+      JCN   M011; 
+
+
+//PRODUKT DUMMY - WIZJA OK
+      A     "I_CAM1_STATUS_READY"; 
+      A(    ; 
+      O     "M_DEBUG_ON"; 
+      ON    "I_CAM1_RESULT_0"; 
+      )     ; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[6]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[7]; 
+
+// NOK
+      A     BR; 
+      A     "I_CAM1_STATUS_READY"; 
+      AN(   ; 
+      O     "M_DEBUG_ON"; 
+      ON    "I_CAM1_RESULT_0"; 
+      )     ; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[6]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[81]; 
+
+// 
+M011: NOP   0; 
+NETWORK
+TITLE = Step7 --> Step8 - zjazd Z3 w celu weryfikacji support ringa
+//- mo¿e siê okazaæ, ¿e to zweryfikujemy wizyjnie
+      A     "DB22_Seq128_Kroki_Dummy".Step[7]; 
+      A     "I_Z3_RET"; 
+      L     S5T#100MS; 
+      SD    "T_Z3_DUMMY1_DELAY"; 
+
+      A     "T_Z3_DUMMY1_DELAY"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[7]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[8]; 
+
+NETWORK
+TITLE = Step8 --> Step9 - test nieobecnoœci support ringu
+//- support ring nie jest zamocowany na DUMMY 1
+      A     "DB22_Seq128_Kroki_Dummy".Step[8]; 
+      SAVE  ; 
+
+// PRODUKT DUMMY - OK
+      AN    "I_OBEC_PODKLADKI"; 
+      S     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[8]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[9]; 
+
+// NOK
+      A     BR; 
+      A     "I_OBEC_PODKLADKI"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[8]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[81]; 
+
+NETWORK
+TITLE = Step9 --> Step10 - WYSUW Z3
+//- wysuniêcie Z3
+      A     "DB22_Seq128_Kroki_Dummy".Step[9]; 
+      A     "I_Z3_EXT"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[9]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[10]; 
+
+NETWORK
+TITLE = Step10 --> Step11 - wyjêcie DUMMY 1
+//- WYJMIJ DUMMY 1
+//- OCZEKIWANIE NA WYJÊCIE R¥K Z KURTYNY
+      A     "DB22_Seq128_Kroki_Dummy".Step[10]; 
+      AN    "I_OBEC_PRODUKTU"; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[10]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[11]; 
+NETWORK
+TITLE = Step11 --> Step12 - reset statusu kamery
+//KASOWANIE TRIGERA KAMERY
+      A     "DB22_Seq128_Kroki_Dummy".Step[11]; 
+//    A     "I_CAM1_STATUS_READY"
+      R     "M_CAM1_SEQ_START"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[11]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[12]; 
+NETWORK
+TITLE = Step12 --> Step13
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[12]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[12]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[13]; 
+
+NETWORK
+TITLE = Step13 --> Step14 - DUMMY 2 -
+//- DUMMY 2 -
+      A     "DB22_Seq128_Kroki_Dummy".Step[13]; 
+      L     S5T#1S; 
+      SD    "T_DELAY_DUMMY2_START"; 
+
+      A     "T_DELAY_DUMMY2_START"; 
+      A     "I_OBEC_PRODUKTU"; 
+
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_NOK; 
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[13]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[14]; 
+
+NETWORK
+TITLE = Step14 --> Step15 - wyci¹gniêcie r¹k
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[14]; 
+      SAVE  ; 
+
+//  Step14 --> Step15,
+      A     "I_OBEC_PRODUKTU"; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[14]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[15]; 
+
+//  Step14 --> Step13,
+      A     BR; 
+      A     "I_KURTYNA"; 
+      AN    "I_OBEC_PRODUKTU"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[14]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[13]; 
+NETWORK
+TITLE = Step15 --> Step16 - artyku³ nr 2, inspekcja nr 1, start kamery
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[15]; 
+      A     "I_KURTYNA"; 
+      SAVE  ; 
+
+      JCN   _002; 
+
+      L     2; 
+      T     "M_DUMMY_NR_ARTYK"; 
+      L     1; 
+      T     "DB131_Kamera".Inspection_Nr; 
+
+      A     BR; 
+      S     "M_CAM1_SEQ_START"; 
+
+_002: NOP   0; 
+      A     BR; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[15]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[16]; 
+
+NETWORK
+TITLE = Step16 --> Step17 - weryfikacja wizyjna
+//- WERYFIKACJA PRODUKTU DUMMY 2 GDY KAMERA WYKONA£A ZDJÊCIE
+      A     "DB22_Seq128_Kroki_Dummy".Step[16]; 
+      A     "DB131_Kamera".DONE; 
+      SAVE  ; 
+      JCN   M012; 
+
+
+// OK 
+      A     "I_CAM1_STATUS_READY"; 
+      A(    ; 
+      O     "M_DEBUG_ON"; 
+      ON    "I_CAM1_RESULT_4"; 
+      )     ; 
+      S     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[16]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[17]; 
+
+// NOK
+      A     BR; 
+      A     "I_CAM1_STATUS_READY"; 
+      AN(   ; 
+      O     "M_DEBUG_ON"; 
+      ON    "I_CAM1_RESULT_4"; 
+      )     ; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[16]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[82]; 
+
+M012: NOP   0; 
+
+NETWORK
+TITLE = Step17 --> Step18
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[17]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[17]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[18]; 
+
+NETWORK
+TITLE = Step18 --> Step19
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[18]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[18]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[19]; 
+
+NETWORK
+TITLE = Step19 --> Step20 - wyjêcie DUMMY 2
+//- WYJMIJ DUMMY 2
+//- OCZEKIWANIE NA WYJÊCIE R¥K Z KURTYNY
+      A     "DB22_Seq128_Kroki_Dummy".Step[19]; 
+      AN    "I_OBEC_PRODUKTU"; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[19]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[20]; 
+NETWORK
+TITLE = Step20 --> Step21
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[20]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[20]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[21]; 
+
+NETWORK
+TITLE = Step21 --> Step22 - reset statusu kamery
+//RESET SEQ KAMERY
+      A     "DB22_Seq128_Kroki_Dummy".Step[21]; 
+      A     "I_CAM1_STATUS_READY"; 
+      R     "M_CAM1_SEQ_START"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[21]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[22]; 
+
+NETWORK
+TITLE = Step22 --> Step23
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[22]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[22]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[23]; 
+
+NETWORK
+TITLE = Step23 --> Step24 - DUMMY 3 -
+//- DUMMY 3 -
+      A     "DB22_Seq128_Kroki_Dummy".Step[23]; 
+      L     S5T#1S; 
+      SD    "T_DELAY_DUMMY3_START"; 
+
+      A     "T_DELAY_DUMMY3_START"; 
+      A     "I_OBEC_PRODUKTU"; 
+      A     "I_OBEC_SPREZYNA_GORA"; 
+      A     "I_OBEC_PISTON_SPREZYNA"; 
+
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_NOK; 
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[23]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[24]; 
+
+NETWORK
+TITLE = Step24 --> Step25 - wyci¹gniêcie r¹k
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[24]; 
+      SAVE  ; 
+
+//  Step24 --> Step25,
+      A     "I_OBEC_PRODUKTU"; 
+      A     "I_OBEC_SPREZYNA_GORA"; 
+      A     "I_OBEC_PISTON_SPREZYNA"; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[24]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[25]; 
+
+//  Step24 --> Step23,
+      A     BR; 
+      A     "I_KURTYNA"; 
+      A(    ; 
+      ON    "I_OBEC_PRODUKTU"; 
+      ON    "I_OBEC_SPREZYNA_GORA"; 
+      ON    "I_OBEC_PISTON_SPREZYNA"; 
+      )     ; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[24]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[23]; 
+NETWORK
+TITLE = Step25 --> Step26 - artyku³ nr 3, inspekcja nr 1, start kamery
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[25]; 
+      A     "I_KURTYNA"; 
+      SAVE  ; 
+
+      JCN   _003; 
+
+      L     3; 
+      T     "M_DUMMY_NR_ARTYK"; 
+      L     1; 
+      T     "DB131_Kamera".Inspection_Nr; 
+
+      A     BR; 
+      S     "M_CAM1_SEQ_START"; 
+
+_003: NOP   0; 
+      A     BR; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[25]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[26]; 
+
+
+NETWORK
+TITLE = Step26 --> Step27 - weryfikacja wizyjna
+//- WERYFIKACJA PRODUKTU DUMMY 3 GDY KAMERA WYKONA£A ZDJÊCIE
+      A     "DB22_Seq128_Kroki_Dummy".Step[26]; 
+      A     "DB131_Kamera".DONE; 
+      JCN   M013; 
+
+      SAVE  ; 
+
+// OK 
+      A     "I_CAM1_STATUS_READY"; 
+      A(    ; 
+      O     "M_DEBUG_ON"; 
+      ON    "I_CAM1_RESULT_2"; 
+      )     ; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[26]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[27]; 
+
+// NOK
+      A     BR; 
+      A     "I_CAM1_STATUS_READY"; 
+      AN(   ; 
+      O     "M_DEBUG_ON"; 
+      ON    "I_CAM1_RESULT_2"; 
+      )     ; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[26]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[83]; 
+
+M013: NOP   0; 
+
+NETWORK
+TITLE = Step27 --> Step28 - weryfikacja górnego gniazda
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[27]; 
+      SAVE  ; 
+
+// OK
+      A     "I_OBEC_SPREZYNA_GORA"; 
+      A     "I_OBEC_PISTON_SPREZYNA"; 
+      S     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[27]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[28]; 
+
+// NOK
+      A     BR; 
+      A(    ; 
+      ON    "I_OBEC_SPREZYNA_GORA"; 
+      ON    "I_OBEC_PISTON_SPREZYNA"; 
+      )     ; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[27]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[83]; 
+
+NETWORK
+TITLE = Step28 --> Step29 spuszczenie powietrza z z2
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[28]; 
+      SAVE  ; 
+
+      L     S5T#300MS; 
+      SP    "T_Z2_PRESSURE_DROP_WAIT"; 
+
+      A     BR; 
+      A     "T_Z2_PRESSURE_DROP_WAIT"; 
+      S     "M_Z2_DROP_PRESSURE"; 
+
+      A     BR; 
+      AN    "T_Z2_PRESSURE_DROP_WAIT"; 
+      R     "M_Z2_DROP_PRESSURE"; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[28]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[29]; 
+
+NETWORK
+TITLE = Step29 --> Step30 - wyjêcie DUMMY 3
+//-WYJÊCIE PRODUKTU DUMMY 3
+      A     "DB22_Seq128_Kroki_Dummy".Step[29]; 
+      AN    "I_OBEC_PRODUKTU"; 
+      AN    "I_OBEC_SPREZYNA_GORA"; 
+      AN    "I_OBEC_PISTON_SPREZYNA"; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[29]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[30]; 
+
+NETWORK
+TITLE = Step30 --> Step31
+//-OCZEKIWANIE NA WYJÊCIE R¥K Z KURTYNY
+      A     "DB22_Seq128_Kroki_Dummy".Step[30]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[30]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[31]; 
+
+NETWORK
+TITLE = Step31 --> Step32 - reset statusu kamery
+//- RESET SEQ KAMERY
+      A     "DB22_Seq128_Kroki_Dummy".Step[31]; 
+      A     "I_CAM1_STATUS_READY"; 
+      R     "M_CAM1_SEQ_START"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[31]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[32]; 
+
+NETWORK
+TITLE = Step32 --> Step33
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[32]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[32]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[33]; 
+
+NETWORK
+TITLE = Step33 --> Step34 - DUMMY 4 -
+//- DUMMY 4 -
+      A     "DB22_Seq128_Kroki_Dummy".Step[33]; 
+      L     S5T#1S; 
+      SD    "T_DELAY_DUMMY4_START"; 
+
+      A     "T_DELAY_DUMMY4_START"; 
+      A     "I_OBEC_PRODUKTU"; 
+
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_NOK; 
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[33]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[34]; 
+
+NETWORK
+TITLE = Step34 --> Step35 - wyci¹gniêcie r¹k
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[34]; 
+      SAVE  ; 
+//  Step34 --> Step35,
+      A     "I_OBEC_PRODUKTU"; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[34]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[35]; 
+
+//  Step34 --> Step33,
+      A     BR; 
+      A     "I_KURTYNA"; 
+      AN    "I_OBEC_PRODUKTU"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[34]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[33]; 
+NETWORK
+TITLE = Step35 --> Step36 - artyku³ nr 4, inspekcja nr 1, start kamery
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[35]; 
+      A     "I_KURTYNA"; 
+      SAVE  ; 
+
+      JCN   _004; 
+      L     4; 
+      T     "M_DUMMY_NR_ARTYK"; 
+      L     1; 
+      T     "DB131_Kamera".Inspection_Nr; 
+
+      A     BR; 
+      S     "M_CAM1_SEQ_START"; 
+
+_004: NOP   0; 
+      A     BR; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[35]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[36]; 
+NETWORK
+TITLE = Step36 --> Step37 - weryfikacja wizyjna
+//- WERYFIKACJA PRODUKTU DUMMY 4 GDY KAMERA WYKONA£A ZDJÊCIE
+      A     "DB22_Seq128_Kroki_Dummy".Step[36]; 
+      A     "DB131_Kamera".DONE; 
+      JCN   M014; 
+
+      SAVE  ; 
+
+// OK 
+      A     "I_CAM1_STATUS_READY"; 
+      A(    ; 
+      O     "M_DEBUG_ON"; 
+      ON    "I_CAM1_RESULT_2"; 
+      )     ; 
+
+      S     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[36]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[37]; 
+
+// NOK
+      A     BR; 
+      A     "I_CAM1_STATUS_READY"; 
+      AN(   ; 
+      O     "M_DEBUG_ON"; 
+      ON    "I_CAM1_RESULT_2"; 
+      )     ; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[36]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[84]; 
+
+M014: NOP   0; 
+
+NETWORK
+TITLE = Step37 --> Step38
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[37]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[37]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[38]; 
+NETWORK
+TITLE = Step38 --> Step39
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[38]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[38]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[39]; 
+
+NETWORK
+TITLE = Step39 --> Step40 - wyjêcie DUMMY 4
+//-WYJÊCIE DUMMY 4 OK
+      A     "DB22_Seq128_Kroki_Dummy".Step[39]; 
+      AN    "I_OBEC_PRODUKTU"; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[39]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[40]; 
+
+NETWORK
+TITLE = Step40 --> Step41
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[40]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[40]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[41]; 
+
+NETWORK
+TITLE = Step41 --> Step42 - reset statusu kamery
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[41]; 
+      A     "I_CAM1_STATUS_READY"; 
+      R     "M_CAM1_SEQ_START"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[41]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[42]; 
+
+NETWORK
+TITLE = Step42 --> Step43
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[42]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[42]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[43]; 
+
+NETWORK
+TITLE = Step43 --> Step44 - DUMMY 5
+//- DYMMY 5 
+      A     "DB22_Seq128_Kroki_Dummy".Step[43]; 
+      L     S5T#1S; 
+      SD    "T_DELAY_DUMMY5_START"; 
+
+      A     "T_DELAY_DUMMY5_START"; 
+      A     "I_OBEC_PRODUKTU"; 
+
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_NOK; 
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[43]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[44]; 
+
+NETWORK
+TITLE = Step44 --> Step45 - wyci¹gniêcie r¹k
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[44]; 
+      SAVE  ; 
+//  Step44 --> Step45,
+      A     "I_OBEC_PRODUKTU"; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[44]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[45]; 
+
+//  Step44 --> Step43,
+      A     BR; 
+      A     "I_KURTYNA"; 
+      AN    "I_OBEC_PRODUKTU"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[44]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[43]; 
+NETWORK
+TITLE = Step45 --> Step46 - artyku³ nr 5
+//OCZEKIWANIE NA WYJÊCIE R¥K Z KURTYNY
+      A     "DB22_Seq128_Kroki_Dummy".Step[45]; 
+      A     "I_KURTYNA"; 
+      SAVE  ; 
+
+      JCN   _005; 
+      L     5; 
+      T     "M_DUMMY_NR_ARTYK"; 
+
+_005: NOP   0; 
+      A     BR; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[45]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[46]; 
+NETWORK
+TITLE = Step46 --> Step47 - wsuw Z3, wysuw Z4, Z2, Z1
+//- Si³owniki musz¹ ustawiæ siê na pozycji aby mo¿liwe by³o sprawdzenie wysokoœci 
+//zagniecenia GT2
+      A     "DB22_Seq128_Kroki_Dummy".Step[46]; 
+      A     "I_Z3_RET"; 
+      A     "I_Z4_EXT"; 
+      A     "M_Z2_EXT"; 
+      A     "M_Z1_EXT"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[46]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[47]; 
+
+NETWORK
+TITLE = Step47 --> Step48 - kontrola wysokoœci zagniatania GT2
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[47]; 
+
+      L     S5T#1S500MS; 
+      SD    "T_DUMMY5_PRESS"; 
+
+      A     "T_DUMMY5_PRESS"; 
+      JCN   M015; 
+      SAVE  ; 
+
+// OK                                
+      A(    ; 
+      O     "M_DEBUG_GT2_ON"; 
+      ON    "I_WYS_ZGNIECENIA_OK"; 
+      )     ; 
+      S     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[47]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[48]; 
+
+// NOK
+      A     BR; 
+      AN(   ; 
+      O     "M_DEBUG_GT2_ON"; 
+      ON    "I_WYS_ZGNIECENIA_OK"; 
+      )     ; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[47]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[85]; 
+
+M015: NOP   0; 
+NETWORK
+TITLE = Step48 --> Step49 - wsuw Z1, Z4
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[48]; 
+      A     "I_Z1_RET"; 
+      A     "I_Z4_RET"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[48]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[49]; 
+
+NETWORK
+TITLE = Step49 --> Step50 - artyku³ nr 5, inspekcja nr 2, start kamery
+//-WYJMIJ DUMMY 5
+      A     "DB22_Seq128_Kroki_Dummy".Step[49]; 
+      A     "I_KURTYNA"; 
+      SAVE  ; 
+
+      JCN   _007; 
+      L     2; 
+      T     "DB131_Kamera".Inspection_Nr; 
+
+      A     BR; 
+      S     "M_CAM1_SEQ_START"; 
+
+_007: NOP   0; 
+      A     BR; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[49]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[50]; 
+
+
+NETWORK
+TITLE = Step50 --> Step51
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[50]; 
+      A     "DB131_Kamera".DONE; 
+      JCN   M017; 
+
+      SAVE  ; 
+
+// OK 
+      A     "I_CAM1_STATUS_READY"; 
+      A(    ; 
+      O     "M_DEBUG_ON"; 
+      ON    "I_CAM1_RESULT_2"; 
+      )     ; 
+
+      S     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[50]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[51]; 
+
+// NOK
+      A     BR; 
+      A     "I_CAM1_STATUS_READY"; 
+      AN(   ; 
+      O     "M_DEBUG_ON"; 
+      ON    "I_CAM1_RESULT_2"; 
+      )     ; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[50]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[85]; 
+M017: NOP   0; 
+
+NETWORK
+TITLE = Step51 --> Step52 - wyjêcie DUMMY 5
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[51]; 
+      A     "I_Z3_EXT"; 
+      AN    "I_OBEC_PRODUKTU"; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[51]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[52]; 
+
+NETWORK
+TITLE = Step52 --> Step53
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[52]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[52]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[53]; 
+
+NETWORK
+TITLE = Step53 --> Step54 - DUMMY 6
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[53]; 
+      L     S5T#1S; 
+      SD    "T_DELAY_DUMMY6_START"; 
+
+      A     "T_DELAY_DUMMY6_START"; 
+      A     "I_OBEC_PRODUKTU"; 
+
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_NOK; 
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[53]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[54]; 
+
+NETWORK
+TITLE = Step54 --> Step55 - wyci¹gniêcie r¹k
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[54]; 
+      SAVE  ; 
+
+//  Step54 --> Step55,
+      A     "I_OBEC_PRODUKTU"; 
+      A     "I_KURTYNA"; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[54]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[55]; 
+
+
+//  Step54 --> Step53,
+      A     BR; 
+      A     "I_KURTYNA"; 
+      AN    "I_OBEC_PRODUKTU"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[54]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[53]; 
+
+NETWORK
+TITLE = Step55 --> Step56 - artyku³ nr 6, inspekcja nr 3, start kamery
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[55]; 
+      A     "I_KURTYNA"; 
+      SAVE  ; 
+
+      JCN   _006; 
+      L     6; 
+      T     "M_DUMMY_NR_ARTYK"; 
+      L     3; 
+      T     "DB131_Kamera".Inspection_Nr; 
+
+      A     BR; 
+      S     "M_CAM1_SEQ_START"; 
+
+_006: NOP   0; 
+      A     BR; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[55]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[56]; 
+
+NETWORK
+TITLE = Step56 --> Step57 - weryfikacja wizyjna
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[56]; 
+      A     "DB131_Kamera".DONE; 
+
+      JCN   M016; 
+      SAVE  ; 
+
+// OK 
+      A     "I_CAM1_STATUS_READY"; 
+      A(    ; 
+      O     "M_DEBUG_ON"; 
+      ON    "I_CAM1_RESULT_4"; 
+      )     ; 
+
+      S     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[56]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[57]; 
+
+
+// NOK
+      A     BR; 
+      A     "I_CAM1_STATUS_READY"; 
+      AN(   ; 
+      O     "M_DEBUG_ON"; 
+      ON    "I_CAM1_RESULT_4"; 
+      )     ; 
+
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[56]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[86]; 
+
+M016: NOP   0; 
+
+NETWORK
+TITLE = Step57 --> Step58
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[57]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[57]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[58]; 
+
+NETWORK
+TITLE = Step58 --> Step59
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[58]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[58]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[59]; 
+
+NETWORK
+TITLE = Step59 --> Step60 - wyjêcie DUMMY 6
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[59]; 
+      AN    "I_OBEC_PRODUKTU"; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[59]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[60]; 
+
+NETWORK
+TITLE = Step60 --> Step61
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[60]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[60]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[61]; 
+
+NETWORK
+TITLE = Step61 --> Step62 - reset statusu kamery
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[61]; 
+      A     "I_CAM1_STATUS_READY"; 
+      R     "M_CAM1_SEQ_START"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[61]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[62]; 
+
+NETWORK
+TITLE = Step62 --> Step63
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[62]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[62]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[63]; 
+
+NETWORK
+TITLE = Step63 --> Step64
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[63]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[63]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[64]; 
+
+NETWORK
+TITLE = Step64 --> Step65
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[64]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[64]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[65]; 
+
+NETWORK
+TITLE = Step65 --> Step66
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[65]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[65]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[66]; 
+
+NETWORK
+TITLE = Step66 --> Step67
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[66]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[66]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[67]; 
+
+NETWORK
+TITLE = Step67 --> Step68
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[67]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[67]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[68]; 
+
+NETWORK
+TITLE = Step68 --> Step69
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[68]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[68]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[69]; 
+
+NETWORK
+TITLE = Step69 --> Step70
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[69]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[69]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[70]; 
+
+NETWORK
+TITLE = Step70 --> Step71
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[70]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[70]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[71]; 
+
+NETWORK
+TITLE = Step71 --> Step72
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[71]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[71]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[72]; 
+
+NETWORK
+TITLE = Step72 --> Step73
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[72]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[72]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[73]; 
+
+NETWORK
+TITLE = Step73 --> Step74
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[73]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[73]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[74]; 
+
+NETWORK
+TITLE = Step74 --> Step75
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[74]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[74]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[75]; 
+
+NETWORK
+TITLE = Step75 --> Step76
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[75]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[75]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[76]; 
+
+NETWORK
+TITLE = Step76 --> Step77
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[76]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[76]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[77]; 
+
+NETWORK
+TITLE = Step77 --> Step78
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[77]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[77]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[78]; 
+
+NETWORK
+TITLE = Step78 --> Step79
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[78]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[78]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[79]; 
+
+NETWORK
+TITLE = Step79 --> Step80 - KONIEC TESTU DUMMY
+//KONIEC SEKWENCJI DUMMY _ SKOK DO POCZ¥TKU
+      A     "DB22_Seq128_Kroki_Dummy".Step[79]; 
+      SAVE  ; 
+      S     "M_DUMMY_OK"; 
+
+      A     BR; 
+      A     "M_SL_CYKL_PULS_P"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[79]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[1]; 
+
+NETWORK
+TITLE = Step80 --> Step81
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[80]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[80]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[81]; 
+
+NETWORK
+TITLE = Step81 --> Step82
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[81]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[81]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[82]; 
+
+NETWORK
+TITLE = Step82 --> Step83
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[82]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[82]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[83]; 
+
+NETWORK
+TITLE = Step83 --> Step84
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[83]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[83]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[84]; 
+
+NETWORK
+TITLE = Step84 --> Step85
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[84]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[84]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[85]; 
+
+NETWORK
+TITLE = Step85 --> Step86  - po blednym DUMMY5 powrot silownikow
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[85]; 
+      A     "I_Z1_RET"; 
+      A     "I_Z2_EXT"; 
+      A     "I_Z3_EXT"; 
+      A     "I_Z4_RET"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[85]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[86]; 
+
+NETWORK
+TITLE = Step86 --> Step87 - wyjmij DUMMY NOK
+//WYJMIJ PRODUKT DUMMY NOK
+      A     "DB22_Seq128_Kroki_Dummy".Step[86]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[86]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[87]; 
+
+NETWORK
+TITLE = Step87 --> Step88 - oczekiwanie na wyjêcie produktu z gniazda 
+//OCZEKIWANIE NA WYJÊCIE PRODUKTU Z GNIAZDA, WRAZ Z SPRÊ¯YN¥
+      A     "DB22_Seq128_Kroki_Dummy".Step[87]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[87]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[88]; 
+
+NETWORK
+TITLE = Step88 --> Step91
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[88]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[88]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[91]; 
+//WTF?!
+//    A     "DB22_Seq128_Kroki_Dummy".Step[91]
+//    A     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK
+//    R     "DB22_Seq128_Kroki_Dummy".Step[91]
+
+NETWORK
+TITLE = Step91 --> Step92 - znaleziono NOK
+
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     81; 
+      >=I   ; 
+      )     ; 
+      A(    ; 
+      L     "DB22_Seq128_Kroki_Dummy".StepNr; 
+      L     104; 
+      <=I   ; 
+      )     ; 
+      =     "DB6_Error".BLAD_SEKWENCJI; 
+
+// Blad od produktu DUMMY 
+      A     "DB6_Error".BLAD_SEKWENCJI; 
+      A(    ; 
+      ON    "I_OBEC_PRODUKTU"; 
+      ON    "I_OBEC_TLOCZKA"; 
+      )     ; 
+      SAVE  ; 
+//WTF?!
+//      AN    "DB22_Seq128_Kroki_Dummy".Step[90]
+//      R     "DB22_Seq128_Kroki_Dummy".Step[90]
+//      R     "DB22_Seq128_Kroki_Dummy".Step[91]
+//      S     "DB22_Seq128_Kroki_Dummy".Step[92]
+
+
+// Blad od nieupowaznionego wejscia w kurtyne 
+//    A     BR
+//      A     "DB6_Error".BLAD_SEKWENCJI
+//      A     "M_SL_RESET_PULS_P"
+//WICI idk, the pulse does not always pulse?!SET
+      SET   ; 
+      A     "I_SL_RESET"; 
+      A     "DB22_Seq128_Kroki_Dummy".Step[90]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[90]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[110]; 
+
+      S     "DB22_Seq128_Kroki_Dummy".PRODUKT_NOK; 
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_OK; 
+
+// Blad od nieprawidlowego dummy 
+      A     BR; 
+      A     "DB6_Error".BLAD_SEKWENCJI; 
+      A     "I_KURTYNA"; 
+      A     "DB22_Seq128_Kroki_Dummy".Step[91]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[91]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[110]; 
+
+NETWORK
+TITLE = Step92 --> Step93
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[92]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[92]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[93]; 
+
+NETWORK
+TITLE = Step93 --> Step94
+//-OCZEKIWANIE NA WYJÊCIE DUMMY 
+      A     "DB22_Seq128_Kroki_Dummy".Step[93]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[93]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[91]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[94]; 
+
+NETWORK
+TITLE = Step94 --> Step95
+//WYJÊCIE PRODUKTU Z GNIAZDA B¥D SPRÊ¯YNY
+      A     "DB22_Seq128_Kroki_Dummy".Step[94]; 
+      SAVE  ; 
+
+//  Step94 --> Step95,
+      A(    ; 
+      O     "I_OBEC_PRODUKTU"; 
+      O     "I_OBEC_SPREZYNA_GORA"; 
+      O     "I_OBEC_TLOCZKA"; 
+      )     ; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[94]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[93]; 
+
+
+//  Ste94 --> Ste93, 
+      A     BR; 
+      AN    "I_OBEC_PRODUKTU"; 
+      AN    "I_OBEC_SPREZYNA_GORA"; 
+      AN    "I_OBEC_TLOCZKA"; 
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_NOK; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[94]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[95]; 
+NETWORK
+TITLE = Step95 --> Step96
+//OCZEKIWANIE NA WYCI¥GNIÊCIE R¥K Z KURTYNY PO WYJÊCIU DUMMY
+      A     "DB22_Seq128_Kroki_Dummy".Step[95]; 
+      SAVE  ; 
+//  Ste95 --> Ste96, 
+      A     "I_KURTYNA"; 
+      AN    "I_OBEC_PRODUKTU"; 
+      AN    "I_OBEC_SPREZYNA_GORA"; 
+      AN    "I_OBEC_TLOCZKA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[95]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[91]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[96]; 
+
+
+//  Ste95 --> Ste93, 
+      A     BR; 
+      A(    ; 
+      O     "I_OBEC_PRODUKTU"; 
+      O     "I_OBEC_SPREZYNA_GORA"; 
+      O     "I_OBEC_TLOCZKA"; 
+      )     ; 
+      A     "I_KURTYNA"; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[95]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[93]; 
+
+NETWORK
+TITLE = Step96 --> Step97
+//WERYFIKACJA B£ÊDNEGO DUMMY, SKOK DO WYBRANEGO DUMMY
+      A     "DB22_Seq128_Kroki_Dummy".Step[96]; 
+      SAVE  ; 
+      JCN   _010; 
+      L     "M_DUMMY_NR_ARTYK"; 
+      L     1; 
+      ==I   ; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[3]; 
+
+      L     "M_DUMMY_NR_ARTYK"; 
+      L     2; 
+      ==I   ; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[13]; 
+
+      L     "M_DUMMY_NR_ARTYK"; 
+      L     3; 
+      ==I   ; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[23]; 
+
+      L     "M_DUMMY_NR_ARTYK"; 
+      L     4; 
+      ==I   ; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[33]; 
+
+      L     "M_DUMMY_NR_ARTYK"; 
+      L     5; 
+      ==I   ; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[43]; 
+
+      L     "M_DUMMY_NR_ARTYK"; 
+      L     6; 
+      ==I   ; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[53]; 
+
+
+
+      A     BR; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[96]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[91]; 
+
+_010: NOP   0; 
+
+
+
+NETWORK
+TITLE = Step97 --> Step98
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[97]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[97]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[98]; 
+
+NETWORK
+TITLE = Step98 --> Step99
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[98]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[98]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[99]; 
+
+NETWORK
+TITLE = Step99 --> Step100
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[99]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[99]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[100]; 
+
+NETWORK
+TITLE = Step100 --> Step101
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[100]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[100]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[101]; 
+
+NETWORK
+TITLE = Step101 --> Step102
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[101]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[101]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[102]; 
+
+NETWORK
+TITLE = Step102 --> Step103
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[102]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[102]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[103]; 
+
+NETWORK
+TITLE = Step103 --> Step104
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[103]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[103]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[104]; 
+
+NETWORK
+TITLE = Step104 --> Step105
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[104]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[104]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[105]; 
+
+NETWORK
+TITLE = Step105 --> Step106
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[105]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[105]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[106]; 
+
+NETWORK
+TITLE = Step106 --> Step107
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[106]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[106]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[107]; 
+
+NETWORK
+TITLE = Step107 --> Step108
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[107]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[107]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[108]; 
+
+NETWORK
+TITLE = Step108 --> Step109
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[108]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[108]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[109]; 
+
+NETWORK
+TITLE = Step109 --> Step110
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[109]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[109]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[110]; 
+
+NETWORK
+TITLE = Step110 --> Step111
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[110]; 
+//    A     "DB120_CYLS".ST1_Z1.I_RET
+//    A     "DB120_CYLS".ST1_Z3.I_RET
+      A     "I_Z1_RET"; 
+      A     "I_Z2_EXT"; 
+      A     "I_Z3_RET"; 
+      A     "I_Z4_RET"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[110]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[111]; 
+
+NETWORK
+TITLE = Step111 --> Step112
+//WYJMIJ PRODUKT Z GNIAZDA
+      A     "DB22_Seq128_Kroki_Dummy".Step[111]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[111]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[112]; 
+
+NETWORK
+TITLE = Step112 --> Step113
+//WYCIAGNIECIE DUMMY
+      A     "DB22_Seq128_Kroki_Dummy".Step[112]; 
+
+      SAVE  ; 
+
+//  Step112 --> Step111,
+      A(    ; 
+      O     "I_OBEC_PRODUKTU"; 
+      O     "I_OBEC_SPREZYNA_GORA"; 
+      O     "I_OBEC_TLOCZKA"; 
+
+      )     ; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[112]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[111]; 
+
+//  SteP112 --> SteP96,
+// KONIEC SEKWENCJI OSB£UGI B£ÊDÓW, SKOK DO ODPOWIEDNIEGO MIEJSCA W SEKEWNSERZE
+      A     BR; 
+      AN    "I_OBEC_PRODUKTU"; 
+      AN    "I_OBEC_SPREZYNA_GORA"; 
+      AN    "I_OBEC_TLOCZKA"; 
+      A     "I_KURTYNA"; 
+      R     "DB22_Seq128_Kroki_Dummy".PRODUKT_NOK; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[112]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[96]; 
+
+
+NETWORK
+TITLE = Step113 --> Step114
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[113]; 
+      A     "LOG0"; 
+
+      R     "DB22_Seq128_Kroki_Dummy".Step[113]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[114]; 
+
+NETWORK
+TITLE = Step114 --> Step115
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[114]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[114]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[115]; 
+
+NETWORK
+TITLE = Step115 --> Step116
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[115]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[115]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[116]; 
+
+NETWORK
+TITLE = Step116 --> Step117
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[116]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[116]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[117]; 
+
+NETWORK
+TITLE = Step117 --> Step118
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[117]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[117]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[118]; 
+
+NETWORK
+TITLE = Step118 --> Step119
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[118]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[118]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[119]; 
+
+NETWORK
+TITLE = Step119 --> Step120
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[119]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[119]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[120]; 
+
+NETWORK
+TITLE = Step120 --> Step121
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[120]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[120]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[121]; 
+
+NETWORK
+TITLE = Step121 --> Step122
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[121]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[121]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[122]; 
+
+NETWORK
+TITLE = Step122 --> Step123
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[122]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[122]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[123]; 
+
+NETWORK
+TITLE = Step123 --> Step124
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[123]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[123]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[124]; 
+NETWORK
+TITLE = Step124 --> Step125
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[124]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[124]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[125]; 
+
+NETWORK
+TITLE = Step125 --> Step126
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[125]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[125]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[126]; 
+
+NETWORK
+TITLE = Step126 --> Step127
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[126]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[126]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[127]; 
+
+NETWORK
+TITLE = Step127 --> Step128
+//-
+      A     "DB22_Seq128_Kroki_Dummy".Step[127]; 
+      R     "DB22_Seq128_Kroki_Dummy".Step[127]; 
+      S     "DB22_Seq128_Kroki_Dummy".Step[128]; 
+
+NETWORK
+TITLE =TEST REFERENCYJNY DUMMY OK
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[128]; 
+
+      A     "DB22_Seq128_Kroki_Dummy".Step[128]; 
+      =     "DB22_Seq128_Kroki_Dummy".SeqCmp; 
+
+END_FUNCTION
+

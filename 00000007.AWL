@@ -1,0 +1,556 @@
+
+DATA_BLOCK DB21
+TITLE =   Sequence template - 64 steps
+
+AUTHOR:  DS_Tech 
+FAMILY: DS_Tech 
+NAME:   DS_Tech 
+VERSION:  01.00    
+STRUCT
+ Step: Array[1..64] of bool;
+ Reset: bool;
+ SeqCmp: bool;
+ spare_bool_1: bool;
+ spare_bool_2: bool;
+ spare_bool_3: bool;
+ spare_bool_4: bool;
+ spare_bool_5: bool;
+ spare_bool_6: bool;
+ spare_byte_1: byte;
+ StepNr: int;
+ END_STRUCT;
+
+BEGIN
+Reset:= false;
+ SeqCmp:= false;
+ spare_bool_1:= false;
+ spare_bool_2:= false;
+ spare_bool_3:= false;
+ spare_bool_4:= false;
+ spare_bool_5:= false;
+ spare_bool_6:= false;
+ spare_byte_1:= b#16#0;
+ StepNr:= 0;
+END_DATA_BLOCK
+
+
+FUNCTION FC21: VOID	
+
+TITLE =    Sequence template - 64 steps
+
+AUTHOR:   DS_Tech
+FAMILY:   DS_Tech   
+NAME:     DS_Tech  
+VERSION:  01.00   
+//-
+
+
+VAR_TEMP             
+  CurrentStep: bool;
+  END_VAR
+
+BEGIN
+Network
+Title = Sequence reset condition
+//-
+a Log1;
+= "DB_Seq".Reset;
+
+Network 
+Title = Sequence reset
+//-
+a "DB_Seq".Reset;
+JCN RST;
+OPN "DB_Seq";
+l 0;
+t dbd0;
+t dbd4;
+RST: NOP 0;
+
+Network
+Title = Sequence completed condition
+//-
+a "DB_Seq".Step[64];
+= "DB_Seq".SeqCmp;
+
+Network 
+Title = Calculate step number
+//-
+   CALL FC_GetStepNr (
+           In_SeqStructPtr          := "DB_Seq".Step,
+           RET_VAL                  := "DB_Seq".StepNr);
+
+NETWORK
+TITLE =  Sequence start codition
+//-
+OPN "DB_Seq";
+L dbd0;
+l dbd4;
+od;
+l l#0;
+==d;
+an "DB_Seq".Reset;
+s "DB_Seq".Step[1];
+
+Network
+Title = Block end conditional on sequence reset
+a "DB_Seq".Reset;
+BEC;
+
+Network
+Title = Step1 --> Step2
+//-
+a "DB_Seq".Step[1];
+r "DB_Seq".Step[1];
+s "DB_Seq".Step[2];
+
+Network
+Title = Step2 --> Step3
+//-
+a "DB_Seq".Step[2];
+r "DB_Seq".Step[2];
+s "DB_Seq".Step[3];
+
+Network
+Title = Step3 --> Step4
+//-
+a "DB_Seq".Step[3];
+r "DB_Seq".Step[3];
+s "DB_Seq".Step[4];
+
+Network
+Title = Step4 --> Step5
+//-
+a "DB_Seq".Step[4];
+r "DB_Seq".Step[4];
+s "DB_Seq".Step[5];
+
+Network
+Title = Step5 --> Step6
+//-
+a "DB_Seq".Step[5];
+r "DB_Seq".Step[5];
+s "DB_Seq".Step[6];
+
+Network
+Title = Step6 --> Step7
+//-
+a "DB_Seq".Step[6];
+r "DB_Seq".Step[6];
+s "DB_Seq".Step[7];
+
+Network
+Title = Step7 --> Step8
+//-
+a "DB_Seq".Step[7];
+r "DB_Seq".Step[7];
+s "DB_Seq".Step[8];
+
+Network
+Title = Step8 --> Step9
+//-
+a "DB_Seq".Step[8];
+r "DB_Seq".Step[8];
+s "DB_Seq".Step[9];
+
+Network
+Title = Step9 --> Step10
+//-
+a "DB_Seq".Step[9];
+r "DB_Seq".Step[9];
+s "DB_Seq".Step[10];
+
+Network
+Title = Step10 --> Step11
+//-
+a "DB_Seq".Step[10];
+r "DB_Seq".Step[10];
+s "DB_Seq".Step[11];
+
+Network
+Title = Step11 --> Step12
+//-
+a "DB_Seq".Step[11];
+r "DB_Seq".Step[11];
+s "DB_Seq".Step[12];
+
+Network
+Title = Step12 --> Step13
+//-
+a "DB_Seq".Step[12];
+r "DB_Seq".Step[12];
+s "DB_Seq".Step[13];
+
+Network
+Title = Step13 --> Step14
+//-
+a "DB_Seq".Step[13];
+r "DB_Seq".Step[13];
+s "DB_Seq".Step[14];
+
+Network
+Title = Step14 --> Step15
+//-
+a "DB_Seq".Step[14];
+r "DB_Seq".Step[14];
+s "DB_Seq".Step[15];
+
+Network
+Title = Step15 --> Step16
+//-
+a "DB_Seq".Step[15];
+r "DB_Seq".Step[15];
+s "DB_Seq".Step[16];
+
+Network
+Title = Step16 --> Step17
+//-
+a "DB_Seq".Step[16];
+r "DB_Seq".Step[16];
+s "DB_Seq".Step[17];
+
+Network
+Title = Step17 --> Step18
+//-
+a "DB_Seq".Step[17];
+r "DB_Seq".Step[17];
+s "DB_Seq".Step[18];
+
+Network
+Title = Step18 --> Step19
+//-
+a "DB_Seq".Step[18];
+r "DB_Seq".Step[18];
+s "DB_Seq".Step[19];
+
+Network
+Title = Step19 --> Step20
+//-
+a "DB_Seq".Step[19];
+r "DB_Seq".Step[19];
+s "DB_Seq".Step[20];
+
+Network
+Title = Step20 --> Step21
+//-
+a "DB_Seq".Step[20];
+r "DB_Seq".Step[20];
+s "DB_Seq".Step[21];
+
+Network
+Title = Step21 --> Step22
+//-
+a "DB_Seq".Step[21];
+r "DB_Seq".Step[21];
+s "DB_Seq".Step[22];
+
+Network
+Title = Step22 --> Step23
+//-
+a "DB_Seq".Step[22];
+r "DB_Seq".Step[22];
+s "DB_Seq".Step[23];
+
+Network
+Title = Step23 --> Step24
+//-
+a "DB_Seq".Step[23];
+r "DB_Seq".Step[23];
+s "DB_Seq".Step[24];
+
+Network
+Title = Step24 --> Step25
+//-
+a "DB_Seq".Step[24];
+r "DB_Seq".Step[24];
+s "DB_Seq".Step[25];
+
+Network
+Title = Step25 --> Step26
+//-
+a "DB_Seq".Step[25];
+r "DB_Seq".Step[25];
+s "DB_Seq".Step[26];
+
+Network
+Title = Step26 --> Step27
+//-
+a "DB_Seq".Step[26];
+r "DB_Seq".Step[26];
+s "DB_Seq".Step[27];
+
+Network
+Title = Step27 --> Step28
+//-
+a "DB_Seq".Step[27];
+r "DB_Seq".Step[27];
+s "DB_Seq".Step[28];
+
+Network
+Title = Step28 --> Step29
+//-
+a "DB_Seq".Step[28];
+r "DB_Seq".Step[28];
+s "DB_Seq".Step[29];
+
+Network
+Title = Step29 --> Step30
+//-
+a "DB_Seq".Step[29];
+r "DB_Seq".Step[29];
+s "DB_Seq".Step[30];
+
+Network
+Title = Step30 --> Step31
+//-
+a "DB_Seq".Step[30];
+r "DB_Seq".Step[30];
+s "DB_Seq".Step[31];
+
+Network
+Title = Step31 --> Step32
+//-
+a "DB_Seq".Step[31];
+r "DB_Seq".Step[31];
+s "DB_Seq".Step[32];
+
+Network
+Title = Step32 --> Step33
+//-
+a "DB_Seq".Step[32];
+r "DB_Seq".Step[32];
+s "DB_Seq".Step[33];
+
+Network
+Title = Step33 --> Step34
+//-
+a "DB_Seq".Step[33];
+r "DB_Seq".Step[33];
+s "DB_Seq".Step[34];
+
+Network
+Title = Step34 --> Step35
+//-
+a "DB_Seq".Step[34];
+r "DB_Seq".Step[34];
+s "DB_Seq".Step[35];
+
+Network
+Title = Step35 --> Step36
+//-
+a "DB_Seq".Step[35];
+r "DB_Seq".Step[35];
+s "DB_Seq".Step[36];
+
+Network
+Title = Step36 --> Step37
+//-
+a "DB_Seq".Step[36];
+r "DB_Seq".Step[36];
+s "DB_Seq".Step[37];
+
+Network
+Title = Step37 --> Step38
+//-
+a "DB_Seq".Step[37];
+r "DB_Seq".Step[37];
+s "DB_Seq".Step[38];
+
+Network
+Title = Step38 --> Step39
+//-
+a "DB_Seq".Step[38];
+r "DB_Seq".Step[38];
+s "DB_Seq".Step[39];
+
+Network
+Title = Step39 --> Step40
+//-
+a "DB_Seq".Step[39];
+r "DB_Seq".Step[39];
+s "DB_Seq".Step[40];
+
+Network
+Title = Step40 --> Step41
+//-
+a "DB_Seq".Step[40];
+r "DB_Seq".Step[40];
+s "DB_Seq".Step[41];
+
+Network
+Title = Step41 --> Step42
+//-
+a "DB_Seq".Step[41];
+r "DB_Seq".Step[41];
+s "DB_Seq".Step[42];
+
+Network
+Title = Step42 --> Step43
+//-
+a "DB_Seq".Step[42];
+r "DB_Seq".Step[42];
+s "DB_Seq".Step[43];
+
+Network
+Title = Step43 --> Step44
+//-
+a "DB_Seq".Step[43];
+r "DB_Seq".Step[43];
+s "DB_Seq".Step[44];
+
+Network
+Title = Step44 --> Step45
+//-
+a "DB_Seq".Step[44];
+r "DB_Seq".Step[44];
+s "DB_Seq".Step[45];
+
+Network
+Title = Step45 --> Step46
+//-
+a "DB_Seq".Step[45];
+r "DB_Seq".Step[45];
+s "DB_Seq".Step[46];
+
+Network
+Title = Step46 --> Step47
+//-
+a "DB_Seq".Step[46];
+r "DB_Seq".Step[46];
+s "DB_Seq".Step[47];
+
+Network
+Title = Step47 --> Step48
+//-
+a "DB_Seq".Step[47];
+r "DB_Seq".Step[47];
+s "DB_Seq".Step[48];
+
+Network
+Title = Step48 --> Step49
+//-
+a "DB_Seq".Step[48];
+r "DB_Seq".Step[48];
+s "DB_Seq".Step[49];
+
+Network
+Title = Step49 --> Step50
+//-
+a "DB_Seq".Step[49];
+r "DB_Seq".Step[49];
+s "DB_Seq".Step[50];
+
+Network
+Title = Step50 --> Step51
+//-
+a "DB_Seq".Step[50];
+r "DB_Seq".Step[50];
+s "DB_Seq".Step[51];
+
+Network
+Title = Step51 --> Step52
+//-
+a "DB_Seq".Step[51];
+r "DB_Seq".Step[51];
+s "DB_Seq".Step[52];
+
+Network
+Title = Step52 --> Step53
+//-
+a "DB_Seq".Step[52];
+r "DB_Seq".Step[52];
+s "DB_Seq".Step[53];
+
+Network
+Title = Step53 --> Step54
+//-
+a "DB_Seq".Step[53];
+r "DB_Seq".Step[53];
+s "DB_Seq".Step[54];
+
+Network
+Title = Step54 --> Step55
+//-
+a "DB_Seq".Step[54];
+r "DB_Seq".Step[54];
+s "DB_Seq".Step[55];
+
+Network
+Title = Step55 --> Step56
+//-
+a "DB_Seq".Step[55];
+r "DB_Seq".Step[55];
+s "DB_Seq".Step[56];
+
+Network
+Title = Step56 --> Step57
+//-
+a "DB_Seq".Step[56];
+r "DB_Seq".Step[56];
+s "DB_Seq".Step[57];
+
+Network
+Title = Step57 --> Step58
+//-
+a "DB_Seq".Step[57];
+r "DB_Seq".Step[57];
+s "DB_Seq".Step[58];
+
+Network
+Title = Step58 --> Step59
+//-
+a "DB_Seq".Step[58];
+r "DB_Seq".Step[58];
+s "DB_Seq".Step[59];
+
+Network
+Title = Step59 --> Step60
+//-
+a "DB_Seq".Step[59];
+r "DB_Seq".Step[59];
+s "DB_Seq".Step[60];
+
+Network
+Title = Step60 --> Step61
+//-
+a "DB_Seq".Step[60];
+r "DB_Seq".Step[60];
+s "DB_Seq".Step[61];
+
+Network
+Title = Step61 --> Step62
+//-
+a "DB_Seq".Step[61];
+r "DB_Seq".Step[61];
+s "DB_Seq".Step[62];
+
+Network
+Title = Step62 --> Step63
+//-
+a "DB_Seq".Step[62];
+r "DB_Seq".Step[62];
+s "DB_Seq".Step[63];
+
+Network
+Title = Step63 --> Step64
+//-
+a "DB_Seq".Step[63];
+r "DB_Seq".Step[63];
+s "DB_Seq".Step[64];
+
+END_FUNCTION
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
